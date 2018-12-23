@@ -20,7 +20,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, seed, model=None):
         """Initialize an Agent object.
         
         Params
@@ -28,21 +28,31 @@ class Agent():
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             seed (int): random seed
+            model (str): the model (state_dict = torch.load('checkpoint.pth')) created in train
         """
 
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
 
-        # Q-Network
-        self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
-        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
-        self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
 
-        # Replay memory
-        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
-        # Initialize time step (for updating every UPDATE_EVERY steps)
-        self.t_step = 0
+        if model is None:
+            # Q-Network
+            self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
+            self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
+            self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
+
+            # Replay memory
+            self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
+            # Initialize time step (for updating every UPDATE_EVERY steps)
+            self.t_step = 0
+        else:
+            self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
+            state_dict = torch.load(model)
+            self.qnetwork_local.load_state_dict(state_dict)
+
+
+
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory

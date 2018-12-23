@@ -50,7 +50,10 @@ if __name__=='__main__':
     print('States have length:', state_size)
 
     #instanziate the agent
-    agent = Agent(state_size=state_size, action_size=action_size, seed=seed,model=model_agent)
+    drop_p = 0.5
+    #the drop_out is disable in this case with eval()
+
+    agent = Agent(state_size=state_size, action_size=action_size, drop_p=drop_p,seed=seed,model=model_agent)
     env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
     state = env_info.vector_observations[0]  # get the current state
     score = 0  # initialize the score

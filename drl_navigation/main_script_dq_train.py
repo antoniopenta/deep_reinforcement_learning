@@ -26,7 +26,7 @@ if __name__=='__main__':
     #report_value (int): report value used to average the last values
 
     seed = 12
-    version = 1
+    version = 2
     report_value = 100
     actions_name = ['move forward', 'move backward', 'turn left', 'turn right']
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
@@ -41,13 +41,15 @@ if __name__=='__main__':
     # eps_end (float): minimum value of epsilon
     # eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
+    #drop_p(float): Dropout Probability
 
     n_episodes = 2000
     max_t = 1000
     eps_start = 1.0
     eps_end = 0.001
     eps_decay = 0.995
-    max_score = 15
+    max_score = 25
+    drop_p = 0.5
 
     env = UnityEnvironment(file_name=os.path.join('env','Banana.app'))
     # get the default brain
@@ -71,7 +73,7 @@ if __name__=='__main__':
     print('States have length:', state_size)
 
     #instanziate the agent
-    agent = Agent(state_size=state_size, action_size=action_size, seed=seed)
+    agent = Agent(state_size=state_size, action_size=action_size,drop_p=drop_p, seed=seed)
 
     # Deep Q - Learning training
 

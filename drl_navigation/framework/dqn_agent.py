@@ -2,7 +2,7 @@ import numpy as np
 import random
 from collections import namedtuple, deque
 
-from framework.model import QNetwork
+from framework.model import QNetwork,QNetworkDropOut
 
 import torch
 import torch.nn.functional as F
@@ -20,13 +20,14 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed, model=None):
+    def __init__(self, state_size, action_size,drop_p, seed, model=None):
         """Initialize an Agent object.
         
         Params
         ======
             state_size (int): dimension of each state
             action_size (int): dimension of each action
+            drop_p(float): Dropout Probability
             seed (int): random seed
             model (str): the model (state_dict = torch.load('checkpoint.pth')) created in train
         """
@@ -34,12 +35,13 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
+        self.drop_p = drop_p
 
 
         if model is None:
             # Q-Network
-            self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
-            self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
+            self.qnetwork_local = QNetworkDropOut(state_size, action_size,drop_p,seed).to(device)
+            self.qnetwork_target = QNetwork(state_size, action_size,seed).to(device)
             self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
 
             # Replay memory
@@ -47,9 +49,10 @@ class Agent():
             # Initialize time step (for updating every UPDATE_EVERY steps)
             self.t_step = 0
         else:
-            self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
+            self.qnetwork_local = QNetwork(state_size, action_size,seed).to(device)
             state_dict = torch.load(model)
             self.qnetwork_local.load_state_dict(state_dict)
+
 
 
 

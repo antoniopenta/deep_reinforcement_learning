@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 64         # minibatch size
+BATCH_SIZE = 128         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR = 5e-4               # learning rate 
@@ -40,7 +40,7 @@ class Agent():
 
         if model is None:
             # Q-Network
-            self.qnetwork_local = QNetworkDropOut(state_size, action_size,drop_p,seed).to(device)
+            self.qnetwork_local = QNetwork(state_size, action_size,seed).to(device)
             self.qnetwork_target = QNetwork(state_size, action_size,seed).to(device)
             self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
 

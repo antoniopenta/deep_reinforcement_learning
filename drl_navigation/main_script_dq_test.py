@@ -24,7 +24,7 @@ if __name__=='__main__':
     random_action = True
 
     seed = 12
-    version = 1
+    version = 3
     model_agent =   os.path.join('model','checkpoint_'+str(version)+'.pth')
 
 

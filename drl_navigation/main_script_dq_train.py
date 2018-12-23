@@ -26,7 +26,7 @@ if __name__=='__main__':
     #report_value (int): report value used to average the last values
 
     seed = 12
-    version = 2
+    version = 3
     report_value = 100
     actions_name = ['move forward', 'move backward', 'turn left', 'turn right']
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
@@ -48,7 +48,7 @@ if __name__=='__main__':
     eps_start = 1.0
     eps_end = 0.001
     eps_decay = 0.995
-    max_score = 25
+    max_score = 20
     drop_p = 0.5
 
     env = UnityEnvironment(file_name=os.path.join('env','Banana.app'))
@@ -130,8 +130,14 @@ if __name__=='__main__':
                                                                                          np.mean(scores_window)))
             torch.save(agent.qnetwork_local.state_dict(), os.path.join('model','checkpoint_'+str(version)+'.pth'))
             break
-    with open(file_scores,'w') as fscores:
-        fscores.write('\n'.join([ str(item) for item in scores]))
+
+    if np.mean(scores_window) < max_score:
+        print('\nEnvironment not fully solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - report_value,
+                                                                                     np.mean(scores_window)))
+        torch.save(agent.qnetwork_local.state_dict(), os.path.join('model', 'checkpoint_' + str(version) + '.pth'))
+
+    with open(file_scores, 'w') as fscores:
+        fscores.write('\n'.join([str(item) for item in scores]))
 
     dataframe = pd.DataFrame(array_to_report_full,columns=['episode_num','avg_eps','average_score','move forward', 'move backward', 'turn left', 'turn right'])
     dataframe.to_csv(file_report,index=None)

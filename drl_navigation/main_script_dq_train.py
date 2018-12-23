@@ -12,7 +12,7 @@ from collections import  Counter
 from framework.model import *
 from framework.dqn_agent import *
 
-
+import pandas as pd
 
 
 
@@ -21,12 +21,18 @@ from framework.dqn_agent import *
 
 if __name__=='__main__':
 
-    random_action = True
+    #seed (int) : seed used to inizialize the network
+    #version (int): version number to save model check point and files
+    #report_value (int): report value used to average the last values
 
     seed = 12
     version = 1
+    report_value = 100
     actions_name = ['move forward', 'move backward', 'turn left', 'turn right']
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
+    file_report = os.path.join('data', 'dataframe_' + str(version) + '.csv')
+
+    array_to_report_full = np.zeros((1,4+3)) # array used to store the distribution of action (4) + average eps + number of episodes + average score
 
 
     # n_episodes (int): maximum number of training episodes
@@ -41,8 +47,7 @@ if __name__=='__main__':
     eps_start = 1.0
     eps_end = 0.001
     eps_decay = 0.995
-
-    max_score = 10
+    max_score = 15
 
     env = UnityEnvironment(file_name=os.path.join('env','Banana.app'))
     # get the default brain
@@ -71,11 +76,12 @@ if __name__=='__main__':
     # Deep Q - Learning training
 
     scores = []  # list containing scores from each episode
-    scores_window = deque(maxlen=100)  # last 100 scores
+    scores_window = deque(maxlen=report_value)  # last 100 scores
     eps = eps_start  # initialize epsilon
-    action_values = deque(maxlen=100)
-    eps_values = deque(maxlen=100)
-    all_scores = []
+
+    action_values = deque(maxlen=report_value)
+    eps_values = deque(maxlen=report_value)
+
     for i_episode in range(1, n_episodes + 1):
         # reset the env
         env_info = env.reset(train_mode=True)[brain_name]
@@ -92,28 +98,41 @@ if __name__=='__main__':
             agent.step(state, action, reward, next_state, done)
             state = next_state
             score += reward
-            all_scores.append(score)
             if done:
                 break
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
         eps = max(eps_end, eps_decay * eps)  # decrease epsilon
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
-        if i_episode % 100 == 0:
+        if i_episode % report_value == 0:
+            print('\n')
+            print('-'*100)
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-            actions_counter=Counter(action_values)
-            actions_distribution =[(item,actions_counter[item]/len(action_values))for item in actions_counter]
-            for action,distribution in actions_distribution:
-                print('\rEpisode {}\tAction Distribution {} : {:.2f}'.format(i_episode,actions_name[action],distribution))
             print('\rEpisode {}\tAverage Eps: {:.2f}'.format(i_episode, np.mean(eps_values)))
 
+            actions_counter = Counter(action_values)
+            actions_array = np.zeros((1,action_size))
+            for item in actions_counter:
+                actions_array[0,item] = actions_counter[item] / len(action_values)
+                print('\rEpisode {}\tAction Distribution {} : {:.2f}'.format(i_episode, actions_name[item],
+                                                                             actions_array[0,item]))
+            average_eps = np.mean(eps_values)
+            average_score = np.mean(scores_window)
+            array_to_report = np.array([[i_episode,average_eps,average_score]])
+            array_to_report = np.hstack([array_to_report,actions_array])
+            array_to_report_full = np.vstack([array_to_report_full,array_to_report])
+            print('-'*100)
+
         if np.mean(scores_window) >= max_score:
-            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - 100,
+            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - report_value,
                                                                                          np.mean(scores_window)))
             torch.save(agent.qnetwork_local.state_dict(), os.path.join('model','checkpoint_'+str(version)+'.pth'))
             break
     with open(file_scores,'w') as fscores:
-        fscores.write('\n'.join([ str(item) for item in all_scores]))
+        fscores.write('\n'.join([ str(item) for item in scores]))
+
+    dataframe = pd.DataFrame(array_to_report_full,columns=['episode_num','avg_eps','average_score','move forward', 'move backward', 'turn left', 'turn right'])
+    dataframe.to_csv(file_report,index=None)
     env.close()
 
 

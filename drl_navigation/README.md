@@ -11,6 +11,7 @@
 
  - Deep-Q Learning Algorithm to solve the Banana game in Unity.
  - Jupyter notebook (in the jupyter folder) contains a description of the code
+ - all the code is also saved here : https://github.com/antoniopenta/deep_reinforcement_learning/tree/master/drl_navigation
 
 
 

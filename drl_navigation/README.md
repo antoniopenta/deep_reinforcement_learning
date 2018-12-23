@@ -21,6 +21,13 @@
 ```sh
 $ python main_script_dq_train.py
 ```
+
+- To see the agent acting (activate your virtual env before) :
+```sh
+$ python main_script_dq_test.py
+```
+
+
 ## Description
 
  - Deep-Q Learning Algorithm to solve the Banana game in Unity.

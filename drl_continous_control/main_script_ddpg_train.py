@@ -86,7 +86,7 @@ if __name__=='__main__':
 
     # DDPG training
 
-    scores = []  # list containing scores from each episode
+    all_scores = []  # list containing scores from each episode
     scores_window = deque(maxlen=report_value)  # last 100 scores
     eps = eps_start  # initialize epsilon
 
@@ -96,7 +96,7 @@ if __name__=='__main__':
         states = env_info.vector_observations
         scores = np.zeros(env_info.agents)
         for t in range(max_t):
-            actions = agent.act(states, eps)
+            actions = agent.act(states)
             env_info = env.step(actions)[brain_name]  # send the action to the environment
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward
@@ -106,9 +106,9 @@ if __name__=='__main__':
             scores += rewards
 
         avg_score = np.mean(scores)
-        scores_window.append(avg_score)  # save most recent score
-        scores.append(avg_score)  # save most recent score
-        eps = max(eps_end, eps_decay * eps)  # decrease epsilon
+        scores_window.append(avg_score)
+        all_scores.append(avg_score)
+        
 
         if i_episode % report_value == 0:
             print('\n')

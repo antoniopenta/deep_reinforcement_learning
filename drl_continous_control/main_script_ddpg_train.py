@@ -30,6 +30,8 @@ if __name__=='__main__':
     report_value = 10
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
 
+    Linux = False
+
 
     # n_episodes (int): maximum number of training episodes
     # max_t (int): maximum number of timesteps per episode
@@ -46,8 +48,10 @@ if __name__=='__main__':
     eps_decay = 0.995
     max_score = 30
 
-
-    env = UnityEnvironment(file_name=os.path.join('env','Reacher.app'))
+    if Linux:
+        env = UnityEnvironment(file_name=os.path.join('env', 'Reacher_Linux'))
+    else:
+        env = UnityEnvironment(file_name=os.path.join('env','Reacher.app'))
     # get the default brain
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]

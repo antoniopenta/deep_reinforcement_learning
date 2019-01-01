@@ -41,7 +41,7 @@ if __name__=='__main__':
     # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
     #drop_p(float): Dropout Probability
 
-    n_episodes = 5000
+    n_episodes = 500
     max_t = 1000
     eps_start = 1.0
     eps_end = 0.01
@@ -108,7 +108,7 @@ if __name__=='__main__':
         avg_score = np.mean(scores)
         scores_window.append(avg_score)
         all_scores.append(avg_score)
-        
+
 
         if i_episode % report_value == 0:
             print('\n')

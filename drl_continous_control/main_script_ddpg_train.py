@@ -100,6 +100,11 @@ if __name__=='__main__':
             env_info = env.step(actions)[brain_name]  # send the action to the environment
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward
+            print('-'*100)
+            print(np.mean(rewards))
+            print(actions)
+            print(rewards)
+            print('-'*100)
             dones = env_info.local_done  # see if episode has finished
             agent.step(states, actions, rewards, next_states, dones)
             state = next_states

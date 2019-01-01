@@ -26,11 +26,11 @@ if __name__=='__main__':
     #report_value (int): report value used to average the last values
 
     seed = 12
-    version = 1
+    version = 2
     report_value = 10
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
 
-    Linux = False
+    Linux = True
 
 
     # n_episodes (int): maximum number of training episodes
@@ -41,7 +41,7 @@ if __name__=='__main__':
     # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
     #drop_p(float): Dropout Probability
 
-    n_episodes = 110
+    n_episodes = 200
     max_t = 500
     eps_start = 1.0
     eps_end = 0.001
@@ -49,7 +49,8 @@ if __name__=='__main__':
     max_score = 30
 
     if Linux:
-        env = UnityEnvironment(file_name=os.path.join('env', 'Reacher_Linux'))
+        print(os.path.join(os.getcwd(),'env', 'Reacher_Linux_NoVis','Reacher.x86_64'))
+        env = UnityEnvironment(file_name=os.path.join(os.getcwd(),'env', 'Reacher_Linux_NoVis','Reacher.x86_64'))
     else:
         env = UnityEnvironment(file_name=os.path.join('env','Reacher.app'))
     # get the default brain

@@ -94,18 +94,17 @@ if __name__=='__main__':
         # reset the env
         env_info = env.reset(train_mode=True)[brain_name]
         states = env_info.vector_observations
-        score = 0
+        scores = np.zeros(env_info.agents)
         for t in range(max_t):
             actions = agent.act(states, eps)
             env_info = env.step(actions)[brain_name]  # send the action to the environment
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward
-            done = env_info.local_done[0]  # see if episode has finished
-            agent.step(states, actions, rewards, next_states, done)
+            dones = env_info.local_done  # see if episode has finished
+            agent.step(states, actions, rewards, next_states, dones)
             state = next_states
             scores += rewards
-            if done:
-                break
+
         avg_score = np.mean(scores)
         scores_window.append(avg_score)  # save most recent score
         scores.append(avg_score)  # save most recent score

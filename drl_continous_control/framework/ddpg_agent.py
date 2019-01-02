@@ -76,17 +76,22 @@ class Agent():
                 for _ in range(N_LEARN_UPDATES):
                     count = COUNT_SAMPLE
                     experiences = None
+                    cum_reward= []
                     while count >= 0:
                         experiences = self.memory.sample()
                         states, actions, rewards, next_states, dones = experiences
+                        cum_reward.append(rewards.numpy().min(axis=0)[0])
                         if rewards.numpy().min(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
                             break
                         count -= 1
                         experiences = None
                     if experiences is not None:
                         states, actions, rewards, next_states, dones = experiences
-                        print('rewords', rewards.numpy().min(axis=0)[0],'count',count,'eps_sample',self.eps_sample)
+                        print('rewords', rewards.numpy().min(axis=0)[0],'count',count,'eps_sample',min(self.eps_sample,EPS_SAMPLE_MAX))
                         self.learn(experiences, GAMMA)
+                    else:
+                        print('rewords', max(cum_reward) , 'count', count, 'eps_sample',
+                              min(self.eps_sample, EPS_SAMPLE_MAX))
 
                 self.eps_sample = self.eps_sample+EPS_SAMPLE
 

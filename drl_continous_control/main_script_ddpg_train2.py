@@ -32,9 +32,9 @@ if __name__=='__main__':
 
 
     seed = 12
-    version = 5
-    report_value = 10
-    n_episodes = 200
+    version = 6
+    report_value = 100
+    n_episodes = 300
     max_score = 30.0
 
     noise_selection = True
@@ -83,65 +83,67 @@ if __name__=='__main__':
     #instanziate the agent
     agent = Agent(state_size=state_size, action_size=action_size, random_seed=seed,logs=logs)
 
-    # DDPG training
 
-    all_scores = []  # list containing scores from each episode
-    scores_window = deque(maxlen=report_value)  # last 100 scores
 
+
+    #######
+
+    avg_scores = []
+    scores_deque = deque(maxlen=report_value)
+    scores = np.zeros(num_agents)  # initialize the score (for each agent)
     for i_episode in range(1, n_episodes + 1):
-        # reset the env
-        env_info = env.reset(train_mode=True)[brain_name]
-        state = env_info.vector_observations[0]
-        scores = 0
+        env_info = env.reset(train_mode=True)[brain_name]  # reset the environment
+        agent.reset()
+        scores = np.zeros(num_agents)
         while True:
-            action = agent.act(state,add_noise=noise_selection)
-            env_info = env.step(action)[brain_name]  # send the action to the environment
-            next_state = env_info.vector_observations[0]  # get the next state
-            reward = env_info.rewards[0]  # get the reward
-            done = env_info.local_done[0]
-            agent.step(state, action, reward, next_state, done)
-            state = next_state
-            scores += reward
-            if done:
-                # reset the noise
-                agent.reset()
+            states = env_info.vector_observations   # get the current state
+            actions = agent.act(states)
+            env_info = env.step(actions)[brain_name]  # send all actions to tne environment
+            rewards = env_info.rewards  # get reward (for each agent)
+            scores += rewards
+            next_states = env_info.vector_observations  # get next state (for each agent)
+            dones = env_info.local_done  # see if episode finished
+            for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
+                agent.step(state, action, reward, next_state, done)
+            if any(env_info.local_done):
                 break
 
-        scores_window.append(scores)
-        all_scores.append(scores)
-
+        scores_deque.append(np.mean(scores))
+        avg_scores.append(np.mean(scores))
 
         if i_episode % report_value == 0:
             print('\n')
             print('-' * 100)
-            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
+            print('\rEpisode {}\tAverage Score: {:.2f} Max Score: {:.2f} , Min Score: {:.2f}'.format(i_episode, np.mean(scores),np.max(scores),np.min(scores)))
             print('\n')
             print('-' * 100)
 
-        if np.mean(scores_window) >= max_score:
+
+        if np.mean(scores_deque) >= max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - report_value,
-                                                                                         np.mean(scores_window)))
-            torch.save(agent.actor_local.state_dict(), os.path.join('model','checkpoint_actor_'+str(version)+'.pth'))
+                                                                                         np.mean(scores_deque)))
+            torch.save(agent.actor_local.state_dict(),
+                       os.path.join('model', 'checkpoint_actor_' + str(version) + '.pth'))
             torch.save(agent.critic_local.state_dict(),
                        os.path.join('model', 'checkpoint_critic_' + str(version) + '.pth'))
             break
 
-    if np.mean(scores_window) < max_score:
-        print('\nEnvironment not fully solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - report_value,
-                                                                                     np.mean(scores_window)))
-        torch.save(agent.actor_local.state_dict(), os.path.join('model', 'checkpoint_actor_' + str(version) + '.pth'))
-        torch.save(agent.actor_local.state_dict(), os.path.join('model', 'checkpoint_critic_' + str(version) + '.pth'))
+        if np.mean(scores_deque) < max_score:
+            print('\nEnvironment not fully solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
+                i_episode - report_value,
+                np.mean(scores_deque)))
+            torch.save(agent.actor_local.state_dict(),
+                       os.path.join('model', 'checkpoint_actor_' + str(version) + '.pth'))
+            torch.save(agent.actor_local.state_dict(),
+                       os.path.join('model', 'checkpoint_critic_' + str(version) + '.pth'))
 
-    with open(file_scores, 'w') as fscores:
-        fscores.write('\n'.join([str(item) for item in all_scores]))
+        with open(file_scores, 'w') as fscores:
+            fscores.write('\n'.join([str(item) for item in avg_scores]))
 
-    if logs is not None:
-
-        np.savetxt(file_actions, np.vstack(logs[0]), delimiter=',',fmt='%.4f')
-        np.savetxt(file_actions_plus_noise, np.vstack(logs[1]), delimiter=',', fmt='%.4f')
-        np.savetxt(file_rewards, np.vstack(logs[2]), delimiter=',', fmt='%.4f')
-
-
+        if logs is not None:
+            np.savetxt(file_actions, np.vstack(logs[0]), delimiter=',', fmt='%.4f')
+            np.savetxt(file_actions_plus_noise, np.vstack(logs[1]), delimiter=',', fmt='%.4f')
+            np.savetxt(file_rewards, np.vstack(logs[2]), delimiter=',', fmt='%.4f')
 
     env.close()
 

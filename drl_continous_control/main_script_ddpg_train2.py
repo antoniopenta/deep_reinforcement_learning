@@ -38,7 +38,7 @@ if __name__=='__main__':
     max_score = 30.0
 
     noise_selection = True
-    Linux = True
+    Linux =  True
 
     logs=[[],[],[]]
 
@@ -84,10 +84,6 @@ if __name__=='__main__':
     agent = Agent(state_size=state_size, action_size=action_size, random_seed=seed,logs=logs)
 
 
-
-
-    #######
-
     avg_scores = []
     scores_deque = deque(maxlen=report_value)
     scores = np.zeros(num_agents)  # initialize the score (for each agent)
@@ -128,22 +124,22 @@ if __name__=='__main__':
                        os.path.join('model', 'checkpoint_critic_' + str(version) + '.pth'))
             break
 
-        if np.mean(scores_deque) < max_score:
-            print('\nEnvironment not fully solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
+    if np.mean(scores_deque) < max_score:
+        print('\nEnvironment not fully solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - report_value,
                 np.mean(scores_deque)))
-            torch.save(agent.actor_local.state_dict(),
+        torch.save(agent.actor_local.state_dict(),
                        os.path.join('model', 'checkpoint_actor_' + str(version) + '.pth'))
-            torch.save(agent.actor_local.state_dict(),
+        torch.save(agent.actor_local.state_dict(),
                        os.path.join('model', 'checkpoint_critic_' + str(version) + '.pth'))
 
-        with open(file_scores, 'w') as fscores:
-            fscores.write('\n'.join([str(item) for item in avg_scores]))
+    with open(file_scores, 'w') as fscores:
+        fscores.write('\n'.join([str(item) for item in avg_scores]))
 
-        if logs is not None:
-            np.savetxt(file_actions, np.vstack(logs[0]), delimiter=',', fmt='%.4f')
-            np.savetxt(file_actions_plus_noise, np.vstack(logs[1]), delimiter=',', fmt='%.4f')
-            np.savetxt(file_rewards, np.vstack(logs[2]), delimiter=',', fmt='%.4f')
+    if logs is not None:
+        np.savetxt(file_actions, np.vstack(logs[0]), delimiter=',', fmt='%.4f')
+        np.savetxt(file_actions_plus_noise, np.vstack(logs[1]), delimiter=',', fmt='%.4f')
+        np.savetxt(file_rewards, np.vstack(logs[2]), delimiter=',', fmt='%.4f')
 
     env.close()
 

@@ -19,6 +19,8 @@ WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 20  # do the learning every timestamps
 N_LEARN_UPDATES =  10 # how many time do the learning
 COUNT_SAMPLE = 5 # how many time I should sample until the rewards average is different from 0
+EPS_SAMPLE = 0.5
+EPS_SAMPLE_MAX = 20
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
@@ -57,6 +59,8 @@ class Agent():
         self.t_step = 0
 
         self.logs = logs
+
+        self.eps_sample = EPS_SAMPLE
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -73,13 +77,14 @@ class Agent():
                     experiences = self.memory.sample()
                     while count >= 0:
                         states, actions, rewards, next_states, dones = experiences
-                        if rewards.numpy().mean(axis=0)[0] != 0:
+                        if rewards.numpy().mean(axis=0)[0] > max(self.eps_sample,EPS_SAMPLE_MAX):
                             print('rewords',rewards.numpy().mean(axis=0)[0])
                             print('count',count)
                             break
                         count -= 1
 
                     self.learn(experiences, GAMMA)
+                self.eps_sample=self.eps_sample+EPS_SAMPLE
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""

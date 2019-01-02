@@ -19,9 +19,6 @@ WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 20  # do the learning every timestamps
 N_LEARN_UPDATES =  10 # how many time do the learning
 COUNT_SAMPLE = 5 # how many time I should sample until the rewards average is different from 0
-EPS_START = 1
-EPS_SAMPLE = 0.0005
-EPS_SAMPLE_MAX = 20
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
@@ -74,26 +71,8 @@ class Agent():
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
                 for _ in range(N_LEARN_UPDATES):
-                    count = COUNT_SAMPLE
-                    experiences = None
-                    cum_reward= []
-                    while count >= 0:
                         experiences = self.memory.sample()
-                        states, actions, rewards, next_states, dones = experiences
-                        cum_reward.append(rewards.numpy().min(axis=0)[0])
-                        if rewards.numpy().min(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
-                            break
-                        count -= 1
-                        experiences = None
-                    if experiences is not None:
-                        states, actions, rewards, next_states, dones = experiences
-                        print('rewords', rewards.numpy().min(axis=0)[0],'count',count,'eps_sample',min(self.eps_sample,EPS_SAMPLE_MAX))
                         self.learn(experiences, GAMMA)
-                    else:
-                        print('rewords', max(cum_reward) , 'count', count, 'eps_sample',
-                              min(self.eps_sample, EPS_SAMPLE_MAX))
-
-                self.eps_sample = self.eps_sample+EPS_SAMPLE
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""

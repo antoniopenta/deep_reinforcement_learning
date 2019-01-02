@@ -33,7 +33,7 @@ if __name__=='__main__':
     time_stamp_report = 20  #time_stamp_report(int): value used to report each time stamps
 
     noise_selection = True # noise_selection (boolean): if we would like to add noise to the actions (noise if True)
-    Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
 

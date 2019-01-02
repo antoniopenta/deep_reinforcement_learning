@@ -9,8 +9,8 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e8)  # replay buffer size
-BATCH_SIZE = 512  # minibatch size
+BUFFER_SIZE = int(1e6)  # replay buffer size
+BATCH_SIZE = 128  # minibatch size
 GAMMA = 0.999  # discount factor
 TAU = 1e-3  # for soft update of target parameters
 LR_ACTOR = 1e-3  # learning rate of the actor
@@ -19,7 +19,8 @@ WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 20  # do the learning every timestamps
 N_LEARN_UPDATES =  10 # how many time do the learning
 COUNT_SAMPLE = 5 # how many time I should sample until the rewards average is different from 0
-EPS_SAMPLE = 0.5
+EPS_START = 1
+EPS_SAMPLE = 0.0005
 EPS_SAMPLE_MAX = 20
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -60,7 +61,7 @@ class Agent():
 
         self.logs = logs
 
-        self.eps_sample = EPS_SAMPLE
+        self.eps_sample = EPS_START
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -78,6 +79,7 @@ class Agent():
                     while count >= 0:
                         experiences = self.memory.sample()
                         states, actions, rewards, next_states, dones = experiences
+                        print(rewards)
                         if rewards.numpy().mean(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
                             break
                         count -= 1

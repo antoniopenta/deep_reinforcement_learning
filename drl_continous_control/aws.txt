@@ -1,0 +1,24 @@
+From a terminal, navigate to the location where you stored your .pem file. (
+For example, if you put your .pem file on your Desktop, cd ~/Desktop/ will move you to the correct directory.)
+
+Type ssh -i YourKeyName.pem ubuntu@X.X.X.X, where:
+
+X.X.X.X is the IPv4 Public IP found in AWS, and
+YourKeyName.pem is the name of your .pem file.
+
+Note that if you've used a different AMI or specified a username, ubuntu will be replaced with the username, such as ec2-user for some Amazon AMI's.
+
+You would then instead enter ssh -i YourKeyName.pem ec2-user@X.X.X.X
+
+Configure Jupyter notebook settings
+
+In your instance, in order to create a config file for your Jupyter notebook settings,
+type (in AWS): jupyter notebook --generate-config.
+
+Then, to change the IP address config setting for notebooks (this is just a fancy one-line command to perform an exact string match replacement; you could do the same thing manually using vi/vim/nano/etc.),
+type (in AWS): sed -ie "s/#c.NotebookApp.ip = 'localhost'/#c.NotebookApp.ip = '*'/g" ~/.jupyter/jupyter_notebook_config.py
+
+Then run jupyter in AWS:
+type (in AWS): jupyter notebook
+
+Then, you can run locally your jupyter using the ip address and the toaken that you will get from the last step.

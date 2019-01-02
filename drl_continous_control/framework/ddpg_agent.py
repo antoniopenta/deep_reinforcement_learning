@@ -9,14 +9,14 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e6)  # replay buffer size
+BUFFER_SIZE = int(1e9)  # replay buffer size
 BATCH_SIZE = 512  # minibatch size
 GAMMA = 0.999  # discount factor
 TAU = 1e-3  # for soft update of target parameters
 LR_ACTOR = 1e-4  # learning rate of the actor
 LR_CRITIC = 1e-4  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
-UPDATE_EVERY = 4  # do the learning every timestamps
+UPDATE_EVERY = 10  # do the learning every timestamps
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -67,7 +67,13 @@ class Agent():
         if self.t_step == 0:
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
-                experiences = self.memory.sample()
+                count = 5
+                while count<0:
+                    experiences = self.memory.sample()
+                    states, actions, rewards, next_states, dones = experiences
+                    if rewards.numpy().mean(axis=0)[0]!=0:
+                        break
+                    count-=1
                 self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):

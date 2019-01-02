@@ -58,7 +58,7 @@ class Agent():
 
         self.logs = logs
 
-        self.eps_sample = EPS_START
+        
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""

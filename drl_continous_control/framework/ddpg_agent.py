@@ -17,6 +17,7 @@ LR_ACTOR = 1e-4  # learning rate of the actor
 LR_CRITIC = 1e-4  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 10  # do the learning every timestamps
+COUNT_SAMPLE = 5 # how many time I should sample until the rewards average is different from 0
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -67,9 +68,9 @@ class Agent():
         if self.t_step == 0:
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
-                count = 5
-                while count<0:
-                    experiences = self.memory.sample()
+                count = COUNT_SAMPLE
+                experiences = self.memory.sample()
+                while count>=0:
                     states, actions, rewards, next_states, dones = experiences
                     if rewards.numpy().mean(axis=0)[0]!=0:
                         break

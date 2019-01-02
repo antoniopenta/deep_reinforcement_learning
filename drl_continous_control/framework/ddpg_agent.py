@@ -58,11 +58,10 @@ class Agent():
 
         self.logs = logs
     
-    def step(self, states, actions, rewards, next_states, dones):
+    def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
-        for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
-            self.memory.add(state, action, reward, next_state, done)
+        self.memory.add(state, action, reward, next_state, done)
 
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
 

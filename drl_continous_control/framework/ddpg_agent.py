@@ -10,14 +10,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e6)  # replay buffer size
-BATCH_SIZE = 1024  # minibatch size
+BATCH_SIZE = 256  # minibatch size
 GAMMA = 0.999  # discount factor
 TAU = 1e-3  # for soft update of target parameters
-LR_ACTOR = 1e-4  # learning rate of the actor
+LR_ACTOR = 1e-3  # learning rate of the actor
 LR_CRITIC = 1e-3  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 20  # do the learning every timestamps
-COUNT_SAMPLE = 10 # how many time I should sample until the rewards average is different from 0
 N_LEARN_UPDATES =  10 # how many time do the learning
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -59,25 +58,20 @@ class Agent():
 
         self.logs = logs
     
-    def step(self, state, action, reward, next_state, done):
+    def step(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
-        self.memory.add(state, action, reward, next_state, done)
+        for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
+            self.memory.add(state, action, reward, next_state, done)
 
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
         if self.t_step == 0:
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
-                for i in range(N_LEARN_UPDATES):
-                    count = COUNT_SAMPLE
-                    experiences = self.memory.sample()
-                    while count>=0:
-                        states, actions, rewards, next_states, dones = experiences
-                        if rewards.numpy().mean(axis=0)[0]!=0:
-                            break
-                        count-=1
-                    self.learn(experiences, GAMMA)
+                for _ in range(N_LEARN_UPDATES):
+                     experiences = self.memory.sample()
+                     self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -87,13 +81,13 @@ class Agent():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if self.logs is not None:
-            self.logs[0].append(np.clip(action, -1, 1))
+            self.logs[0].append(action)
         #print('action before noise', action)
         if add_noise:
             action += self.noise.sample()
-            self.logs[1].append(np.clip(action, -1, 1))
+            self.logs[1].append(action)
             #print('action after noise', np.clip(action, -1, 1))
-        return np.clip(action, -1, 1)
+        return action
 
     def reset(self):
         self.noise.reset()
@@ -140,7 +134,10 @@ class Agent():
 
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
-        self.soft_update(self.actor_local, self.actor_target, TAU)                     
+        self.soft_update(self.actor_local, self.actor_target, TAU)
+
+        # ---------------------------- update noise ---------------------------- #
+        self.noise.reset()
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.

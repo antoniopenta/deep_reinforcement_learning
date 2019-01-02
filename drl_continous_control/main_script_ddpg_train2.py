@@ -31,9 +31,9 @@ if __name__=='__main__':
     # logs 0, action, 1 action+noise, 2 rewards
 
 
-    seed = 12
+    seed = 15
     version = 6
-    report_value = 100
+    report_value = 10
     n_episodes = 300
     max_score = 30.0
 

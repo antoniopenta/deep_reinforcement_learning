@@ -18,7 +18,7 @@ LR_CRITIC = 1e-3  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
 UPDATE_EVERY = 20  # do the learning every timestamps
 N_LEARN_UPDATES =  10 # how many time do the learning
-
+COUNT_SAMPLE = 5 # how many time I should sample until the rewards average is different from 0
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
@@ -69,8 +69,17 @@ class Agent():
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
                 for _ in range(N_LEARN_UPDATES):
-                     experiences = self.memory.sample()
-                     self.learn(experiences, GAMMA)
+                    count = COUNT_SAMPLE
+                    experiences = self.memory.sample()
+                    while count >= 0:
+                        states, actions, rewards, next_states, dones = experiences
+                        if rewards.numpy().mean(axis=0)[0] != 0:
+                            print('rewords',rewards.numpy().mean(axis=0)[0])
+                            print('count',count)
+                            break
+                        count -= 1
+
+                    self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -80,13 +89,13 @@ class Agent():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if self.logs is not None:
-            self.logs[0].append(action)
+            self.logs[0].append(np.clip(action, -1, 1))
         #print('action before noise', action)
         if add_noise:
             action += self.noise.sample()
-            self.logs[1].append(action)
+            self.logs[1].append(np.clip(action, -1, 1))
             #print('action after noise', np.clip(action, -1, 1))
-        return action
+        return np.clip(action, -1, 1)
 
     def reset(self):
         self.noise.reset()

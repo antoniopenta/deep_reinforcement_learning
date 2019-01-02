@@ -9,8 +9,8 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e6)  # replay buffer size
-BATCH_SIZE = 256  # minibatch size
+BUFFER_SIZE = int(1e8)  # replay buffer size
+BATCH_SIZE = 512  # minibatch size
 GAMMA = 0.999  # discount factor
 TAU = 1e-3  # for soft update of target parameters
 LR_ACTOR = 1e-3  # learning rate of the actor
@@ -74,17 +74,19 @@ class Agent():
             if len(self.memory) > BATCH_SIZE:
                 for _ in range(N_LEARN_UPDATES):
                     count = COUNT_SAMPLE
-                    experiences = self.memory.sample()
+                    experiences = None
                     while count >= 0:
+                        experiences = self.memory.sample()
                         states, actions, rewards, next_states, dones = experiences
-                        if rewards.numpy().mean(axis=0)[0] > max(self.eps_sample,EPS_SAMPLE_MAX):
-                            print('rewords',rewards.numpy().mean(axis=0)[0])
-                            print('count',count)
+                        if rewards.numpy().mean(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
                             break
                         count -= 1
+                    if experiences is not None:
+                        states, actions, rewards, next_states, dones = experiences
+                        print('rewords', rewards.numpy().mean(axis=0)[0],'count',count,'eps_sample',self.eps_sample)
+                        self.learn(experiences, GAMMA)
 
-                    self.learn(experiences, GAMMA)
-                self.eps_sample=self.eps_sample+EPS_SAMPLE
+                self.eps_sample = self.eps_sample+EPS_SAMPLE
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""

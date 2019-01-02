@@ -9,8 +9,8 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e6)  # replay buffer size
-BATCH_SIZE = 128  # minibatch size
+BUFFER_SIZE = int(1e9)  # replay buffer size
+BATCH_SIZE = 512  # minibatch size
 GAMMA = 0.999  # discount factor
 TAU = 1e-3  # for soft update of target parameters
 LR_ACTOR = 1e-3  # learning rate of the actor
@@ -79,13 +79,13 @@ class Agent():
                     while count >= 0:
                         experiences = self.memory.sample()
                         states, actions, rewards, next_states, dones = experiences
-                        print(rewards)
-                        if rewards.numpy().mean(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
+                        if rewards.numpy().min(axis=0)[0] >= min(self.eps_sample,EPS_SAMPLE_MAX):
                             break
                         count -= 1
+                        experiences = None
                     if experiences is not None:
                         states, actions, rewards, next_states, dones = experiences
-                        print('rewords', rewards.numpy().mean(axis=0)[0],'count',count,'eps_sample',self.eps_sample)
+                        print('rewords', rewards.numpy().min(axis=0)[0],'count',count,'eps_sample',self.eps_sample)
                         self.learn(experiences, GAMMA)
 
                 self.eps_sample = self.eps_sample+EPS_SAMPLE

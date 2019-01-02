@@ -32,7 +32,7 @@ if __name__=='__main__':
 
 
     seed = 15
-    version = 6
+    version = 7
     report_value = 10
     n_episodes = 300
     max_score = 30.0

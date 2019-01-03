@@ -1,10 +1,10 @@
 
 
-#  Navigation Project
+#  Continuous Control Project
 
-![](https://user-images.githubusercontent.com/10624937/42135619-d90f2f28-7d12-11e8-8823-82b970a54d7e.gif)
+![](https://user-images.githubusercontent.com/10624937/43851024-320ba930-9aff-11e8-8493-ee547c6af349.gif)
 
-- More info can be read here : [Udacity Project link](https://github.com/udacity/deep-reinforcement-learning/tree/master/p1_navigation)
+- More info about the purpose of the project can be read here : [Udacity Project link](https://github.com/udacity/deep-reinforcement-learning/tree/master/p2_continuous-control)
 
 
 ## Main Description
@@ -23,18 +23,17 @@ $ pip install -r requirements.txt
 ```
 
 
-- You need to download the unity env Reacher (1 Agent) at the following link ( 4 Mac) and save (unzipped) in the env folder of the project: https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher.app.zip
-
+-  more info can be found in the  jupyter folder : notebook_continuos_control.ipynb
 
 ## Project Explanation
 
-- The report of the project in in the jupyter folder : notebook_continuos_control.ipynb
+- The report of the project in the jupyter folder : notebook_continuos_control.ipynb
 
 
 ## Results (Final Model)
 
-- The final model is stored in  the model folder :
-- The score results are stored in the data folder :
+- The final model is stored in  the model folder : checkpoint_actor_1.pth, checkpoint_critic_1.pth
+- The score results are stored in the data folder : scores_relu.txt
 
 
 ## Train and Test Scripts

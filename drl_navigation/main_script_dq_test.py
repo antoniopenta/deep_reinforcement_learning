@@ -33,7 +33,7 @@ if __name__=='__main__':
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]
     # reset the environment
-    env_info = env.reset(train_mode=True)[brain_name]
+    env_info = env.reset(train_mode=False)[brain_name]
 
     # number of agents in the environment
     print('Number of agents:', len(env_info.agents))

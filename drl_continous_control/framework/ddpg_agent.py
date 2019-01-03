@@ -46,10 +46,7 @@ class Agent():
         self.action_size = action_size
         self.seed = random.seed(random_seed)
 
-        # Actor Network (w/ Target Network)
-        # self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        # self.actor_target = Actor(state_size, action_size, random_seed).to(device)
-        # self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
+
 
         # initialize Class level Actor Network
         if Agent.actor_local is None:
@@ -62,10 +59,6 @@ class Agent():
         self.actor_target = Agent.actor_target
         self.actor_optimizer = Agent.actor_optimizer
 
-        # Critic Network (w/ Target Network)
-#         self.critic_local = Critic(state_size, action_size, random_seed).to(device)
-#         self.critic_target = Critic(state_size, action_size, random_seed).to(device)
-#         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
         # Initilise Class levell Critic Network
         if Agent.critic_local is None:
@@ -83,10 +76,8 @@ class Agent():
 
         # Replay memory - only intitialise once per class
         if Agent.memory is None:
-            print("Initialising ReplayBuffer")
             Agent.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
-#         else:
-#             print("Sharing ReplayBuffer %s", Agent.memory)
+
 
     def step(self, time_step, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""

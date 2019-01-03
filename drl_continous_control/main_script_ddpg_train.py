@@ -31,7 +31,7 @@ if __name__=='__main__':
     max_t = 1000  # max_t (int) max length of the time stemps
     time_stamp_report = 20  #time_stamp_report(int): value used to report each time stamps
 
-    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
 

@@ -32,7 +32,6 @@ if __name__=='__main__':
     max_t = 1000  # max_t (int) max length of the time stemps
     time_stamp_report = 20  #time_stamp_report(int): value used to report each time stamps
 
-    noise_selection = True # noise_selection (boolean): if we would like to add noise to the actions (noise if True)
     Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(version)+'.txt')
@@ -82,7 +81,7 @@ if __name__=='__main__':
         scores = np.zeros(num_agents)
 
         for t in range(max_t):
-            actions = np.array([agents[i].act(states[i],add_noise=noise_selection) for i in range(num_agents)])
+            actions = np.array([agents[i].act(states[i]) for i in range(num_agents)])
             env_info = env.step(actions)[brain_name]  # send the action to the environment
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward

@@ -7,7 +7,7 @@ import numpy as np
 from utils.agent_utilities import *
 import os
 
-
+from utils.noise import OUNoise
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -20,10 +20,11 @@ class DDPGAgent:
         self.target_actor = Actor(state_size, action_size, config).to(device)
         self.target_critic = Critic(state_size, action_size, config).to(device)
 
-        self.noise = config.random_process_fn
 
         self.config = config
 
+        self.noise = OUNoise(size=(2,), seed=self.config.noise_seed, mu=self.config.noise_mu, theta=self.config.noise_theta,
+                             sigma=self.config.noise_sigma)
 
         # initialize targets same as original networks
         hard_update(self.target_actor, self.actor)

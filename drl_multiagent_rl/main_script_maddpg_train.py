@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux = True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -62,8 +62,7 @@ if __name__=='__main__':
 
     maddpg = MADDPGLearner(agents, config)
 
-
-
+    cumulative_t_step = 0
     for i_episode in range(0, config.num_episodes):
 
         env_info = env.reset(train_mode=True)[brain_name]
@@ -76,7 +75,7 @@ if __name__=='__main__':
         exploration = config.exploration_range[1] + (
                                                         config.exploration_range[0] - config.exploration_range[
                                                             1]) * exploration
-
+        exploration=1
         maddpg.reset_noise()
 
         for t_step in range(config.max_steps_4_episodes):
@@ -94,6 +93,7 @@ if __name__=='__main__':
             env_info = env.step(actions)[brain_name]  # send the action to the environment
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward
+            #print('rewards',rewards,'t_stamp',t_step)
             dones = env_info.local_done
             if config.log:
                 print('maddpg states',states.shape)
@@ -106,26 +106,26 @@ if __name__=='__main__':
 
             states = next_states
             agent_scores_episode += rewards
-
+            #print('rewards,istep', rewards, t_step)
 
             # if t_step % config.time_stamp_report:
             #     print('\rTimestep {}\tScore 1 : {:.2f}\tmin 1: {:.2f}\tmax 1: {:.2f}\tScore 2 : {:.2f}\tmin 2: {:.2f}\tmax 2: {:.2f}'
             #           .format(t_step, np.mean(agent_scores[0]), np.min(agent_scores[0]), np.max(agent_scores[0]),np.mean(agent_scores[1]), np.min(agent_scores[1]), np.max(agent_scores[1])), end="")
-
-            if (t_step % config.maddpa_n_learn_steps):
+            cumulative_t_step+=1
+            if (cumulative_t_step % config.maddpa_n_learn_steps):
                 maddpg.learn()
 
             if np.any(dones):
+                #print(t_step)
                 break
         value_score_episode = max(agent_scores_episode)
-        scores.append(value_score_episode)
         all_scores.append(value_score_episode)
+        scores.append(value_score_episode)
         avg_score = np.mean(scores)
-
 
         if i_episode % config.time_stamp_report:
             print(
-                'Episode {}\t Last Score  : {:.2f}\t Average Score : {:.2f} \n'
+                'Episode {}\t Last Score  : {:.4f}\t Average Score : {:.4f} \n'
                     .format(i_episode, value_score_episode, avg_score), end="")
         if avg_score >= config.max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(

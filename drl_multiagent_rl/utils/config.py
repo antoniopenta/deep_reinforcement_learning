@@ -9,7 +9,7 @@ class Config():
 
     def __init__(self):
 
-        self.version = 5  # version (int): version number to save model check point and files
+        self.version = 1  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
@@ -54,25 +54,19 @@ class Config():
         self.noise_seed = 34
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma = 0.6
+        self.noise_sigma = 0.2
 
         self.num_exploration_episodes = 25000
         self.exploration_range = (0.3, 0.0)
 
         self.agent_noise_multiplier = 1
 
-        self.random_process_fn =  OUNoise(
-            size=(2,), seed=self.noise_seed,mu=self.noise_mu,theta=self.noise_theta,sigma=self.noise_sigma)
-
-
-
-        self.random_process_fn.__name__ = 'OUNoise'
 
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
         self.maddpa_batch_size = 128  # minibatch size
 
         self.maddpa_n_learn_updates = 1  # number of learning updates
-        self.maddpa_n_learn_steps = 2  # every n time step do update
+        self.maddpa_n_learn_steps = 15  # every n time step do update
 
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-3  # for soft update of target parameters

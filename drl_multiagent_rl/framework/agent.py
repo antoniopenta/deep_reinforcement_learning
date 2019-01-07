@@ -33,16 +33,15 @@ class DDPGAgent:
         self.critic_optimizer = Adam(self.critic.parameters(), lr=config.critic_lr, weight_decay=config.critic_weight_decay)
 
 
-    def step(self, obs):
+    def step(self, obs,noise_scale):
         obs = obs.to(device)
-        action = self.actor(obs) + to_tensor(self.config.agent_noise_multiplier* self.noise.sample())
+        action = self.actor(obs) + to_tensor(noise_scale* self.noise.sample())
         action = torch.clamp(action, -1, 1)
         return action
 
     def target_act(self, obs):
         obs = obs.to(device)
-        action = self.target_actor(obs) + to_tensor(self.config.agent_noise_multiplier * self.noise.sample())
-        action=torch.clamp(action, -1, 1)
+        action = self.target_actor(obs)
         return action
 
 

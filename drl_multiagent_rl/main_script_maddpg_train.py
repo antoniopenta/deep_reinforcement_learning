@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -62,6 +62,7 @@ if __name__=='__main__':
     maddpg = MADDPGLearner(agents, config)
 
 
+
     for i_episode in range(0, config.num_episodes):
 
         env_info = env.reset(train_mode=True)[brain_name]
@@ -70,13 +71,18 @@ if __name__=='__main__':
 
         agent_scores = np.zeros(maddpg.num_agents)
 
+        exploration = max(0, config.num_exploration_episodes - i_episode) / config.num_exploration_episodes
+        exploration = config.exploration_range[1] + (
+                                                        config.exploration_range[0] - config.exploration_range[
+                                                            1]) * exploration
+
         maddpg.reset_noise()
 
         for t_step in range(config.max_steps_4_episodes):
 
             torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
 
-            actions = maddpg.step(torch_states)
+            actions = maddpg.step(torch_states,noise_scale=exploration)
             if config.log:
                 print(100*'*')
                 print('actions',actions)

@@ -119,8 +119,8 @@ class MADDPGLearner:
         for agent in self.maddpg_agents:
             agent.reset_noise()
 
-    def step(self, states):
-        return [a.step(state) for a, state in zip(self.maddpg_agents, states)]
+    def step(self, states,noise_scale=1):
+        return [a.step(state,noise_scale) for a, state in zip(self.maddpg_agents, states)]
 
     def learn(self):
         if len(self.buffer) < self.config.maddpa_batch_size:

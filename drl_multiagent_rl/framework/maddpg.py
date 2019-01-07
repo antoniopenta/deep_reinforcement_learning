@@ -75,8 +75,8 @@ class MADDPGLearner:
         if self.config.log:
             print('\ntarget_actions cat', target_critic_input.shape)
 
-        with torch.no_grad():
-            q_next = current_agent.target_critic(target_critic_input)
+
+        q_next = current_agent.target_critic(target_critic_input)
 
         target_q = rewards[agent_number].view(-1, 1) + self.config.maddpa_gamma * q_next * (1 - dones[agent_number].view(-1, 1))
 
@@ -90,16 +90,14 @@ class MADDPGLearner:
         torch.nn.utils.clip_grad_norm_(current_agent.critic.parameters(), self.config.grad_normalization_critic)
         current_agent.critic_optimizer.step()
 
-        # update actor network using policy gradient
-        current_agent.actor_optimizer.zero_grad()
-        # make input to agent
-        # detach the other agents to save computation
-        # saves some time for computing derivative
 
+        current_agent.actor_optimizer.zero_grad()
+
+        curr_actor_action = current_agent.actor(states[agent_number])
         all_actor_actions = []
         for i,state in zip(range(self.num_agents),states):
             if i == agent_number:
-                all_actor_actions.append(current_agent.actor(state))
+                all_actor_actions.append(curr_actor_action)
             else:
                 other_agent = self.maddpg_agents[i]
                 all_actor_actions.append(other_agent.actor(state))
@@ -111,8 +109,10 @@ class MADDPGLearner:
         critic_input = torch.cat((*states, *all_actor_actions), dim=1)
         # get the policy gradient
         actor_loss = -current_agent.critic(critic_input).mean()
+        #regularization
+        actor_loss += (curr_actor_action ** 2).mean() * 1e-3
         actor_loss.backward()
-        # torch.nn.utils.clip_grad_norm_(agent.actor.parameters(),0.5)
+        torch.nn.utils.clip_grad_norm_(current_agent.actor.parameters(),self.config.grad_normalization_actor)
         current_agent.actor_optimizer.step()
 
     def reset_noise(self):

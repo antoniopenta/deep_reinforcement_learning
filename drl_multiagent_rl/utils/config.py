@@ -9,14 +9,14 @@ class Config():
 
     def __init__(self):
 
-        self.version = 3  # version (int): version number to save model check point and files
+        self.version = 5  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
         self.report_value = 100
         self.time_stamp_report = 20  #
 
-        self.num_episodes = 2000  # num_episodes (int): maximum number of training episodes
+        self.num_episodes = 100  # num_episodes (int): maximum number of training episodes
         self.max_score = 0.5  # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
         self.score_window_size = 100  # score_window_size(int): buffer size for the score
         self.max_steps_4_episodes = 1000  # max_t (int) max length of the time stemps
@@ -54,7 +54,7 @@ class Config():
         self.noise_seed = 34
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma = 0.2
+        self.noise_sigma = 0.6
 
         self.num_exploration_episodes = 25000
         self.exploration_range = (0.3, 0.0)

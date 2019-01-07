@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -49,10 +49,11 @@ if __name__=='__main__':
     print('The state for the first agent looks like:', states[0])
 
 
-    scores_window = deque(maxlen=config.score_window_size)
 
+    all_scores = []
 
-    scores_episode = []
+    scores = deque(maxlen=config.score_window_size)
+
 
     # each agent will take in  both the actions
 
@@ -69,7 +70,7 @@ if __name__=='__main__':
 
         states = env_info.vector_observations
 
-        agent_scores = np.zeros(maddpg.num_agents)
+        agent_scores_episode = np.zeros(maddpg.num_agents)
 
         exploration = max(0, config.num_exploration_episodes - i_episode) / config.num_exploration_episodes
         exploration = config.exploration_range[1] + (
@@ -104,7 +105,7 @@ if __name__=='__main__':
             maddpg.remember(states, actions, rewards, next_states, dones)
 
             states = next_states
-            agent_scores += rewards
+            agent_scores_episode += rewards
 
 
             # if t_step % config.time_stamp_report:
@@ -116,32 +117,34 @@ if __name__=='__main__':
 
             if np.any(dones):
                 break
-        value_score_episode = max(np.mean(agent_scores[0]),np.mean(agent_scores[1]))
-        scores_episode.append(value_score_episode)
-        scores_window.append(value_score_episode)
+        value_score_episode = max(agent_scores_episode)
+        scores.append(value_score_episode)
+        all_scores.append(value_score_episode)
+        avg_score = np.mean(scores)
+
 
         if i_episode % config.time_stamp_report:
             print(
                 'Episode {}\t Last Score  : {:.2f}\t Average Score : {:.2f} \n'
-                    .format(i_episode, value_score_episode, np.mean(scores_window)), end="")
-        if np.mean(scores_window) >= config.max_score:
+                    .format(i_episode, value_score_episode, avg_score), end="")
+        if avg_score >= config.max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - config.score_window_size,
-                np.mean(scores_window)))
+                avg_score))
             for index_agent,agent in enumerate(agents):
                 agent.save('model','checkpoint_'+str(i_episode - config.score_window_size),config.version)
 
 
 
-    if np.mean(scores_window) < config.max_score:
+    if avg_score < config.max_score:
         print('\nEnvironment not solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
             i_episode - config.score_window_size,
-            np.mean(scores_window)))
+            avg_score))
         for index_agent, agent in enumerate(agents):
             agent.save('model','checkpoint_'+str(i_episode - config.score_window_size), str(config.version))
 
     with open(file_scores, 'w') as fscores:
-        fscores.write('\n'.join([str(item) for item in scores_episode]))
+        fscores.write('\n'.join([str(item) for item in all_scores]))
 
     with open(file_version, 'w') as fversion:
         json.dump(config.getDict(), fversion)

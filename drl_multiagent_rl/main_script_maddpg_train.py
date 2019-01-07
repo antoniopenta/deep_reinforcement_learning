@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux =  False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux =  True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 

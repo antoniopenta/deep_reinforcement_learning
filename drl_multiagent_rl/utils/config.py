@@ -9,7 +9,7 @@ class Config():
 
     def __init__(self):
 
-        self.version = 1  # version (int): version number to save model check point and files
+        self.version = 2  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
@@ -22,8 +22,6 @@ class Config():
         self.max_steps_4_episodes = 1000  # max_t (int) max length of the time stemps
 
 
-        self.actor_seed = 15
-        self.critic_seed = 21
 
         self.actor_fc1_units = 256  # number neurons first layer actor
         self.actor_fc2_units = 128 # number neurons second layer actor
@@ -51,10 +49,10 @@ class Config():
         self.critic_weight_decay = 0.0  # L2 weight decay
 
 
-        self.noise_seed = 34
+
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma = 0.2
+        self.noise_sigma =  0.2
 
         self.num_exploration_episodes = 25000
         self.exploration_range = (0.3, 0.0)
@@ -71,7 +69,7 @@ class Config():
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-3  # for soft update of target parameters
 
-        self.buffer_seed = 28 # buffer seed for sampling
+
 
 
         self.grad_normalization_actor = 0.5

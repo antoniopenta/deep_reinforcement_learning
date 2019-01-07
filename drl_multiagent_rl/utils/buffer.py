@@ -11,12 +11,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ReplayBuffer(object):
 
-    def __init__(self,buffer_size, batch_size, num_agents,seed):
+    def __init__(self,buffer_size, batch_size, num_agents):
         self.max_size = buffer_size
         self.num_agents = num_agents
         self.storage = [deque(maxlen=buffer_size) for _ in range(num_agents)]
         self.batch_size=batch_size
-        self.seed = random.seed(seed)
 
         self.length = 0
 

@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux = True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux = False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -75,7 +75,7 @@ if __name__=='__main__':
         exploration = config.exploration_range[1] + (
                                                         config.exploration_range[0] - config.exploration_range[
                                                             1]) * exploration
-        exploration=1
+        #exploration = 1
         maddpg.reset_noise()
 
         for t_step in range(config.max_steps_4_episodes):

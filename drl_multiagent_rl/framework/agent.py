@@ -23,7 +23,7 @@ class DDPGAgent:
 
         self.config = config
 
-        self.noise = OUNoise(size=(2,), seed=self.config.noise_seed, mu=self.config.noise_mu, theta=self.config.noise_theta,
+        self.noise = OUNoise(2, mu=self.config.noise_mu, theta=self.config.noise_theta,
                              sigma=self.config.noise_sigma)
 
         # initialize targets same as original networks

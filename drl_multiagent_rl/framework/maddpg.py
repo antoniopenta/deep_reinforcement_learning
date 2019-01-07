@@ -24,7 +24,7 @@ class MADDPGLearner:
 
         self.num_agents = len(self.maddpg_agents)
 
-        self.buffer = ReplayBuffer(config.maddpa_buffer_size,config.maddpa_batch_size,self.num_agents,config.buffer_seed)
+        self.buffer = ReplayBuffer(config.maddpa_buffer_size,config.maddpa_batch_size,self.num_agents)
 
         self.config = config
 
@@ -110,7 +110,7 @@ class MADDPGLearner:
         # get the policy gradient
         actor_loss = -current_agent.critic(critic_input).mean()
         #regularization
-        #actor_loss += (curr_actor_action ** 2).mean() * 1e-3
+        actor_loss += (curr_actor_action ** 2).mean() * 1e-3
         actor_loss.backward()
         torch.nn.utils.clip_grad_norm_(current_agent.actor.parameters(),self.config.grad_normalization_actor)
         current_agent.actor_optimizer.step()

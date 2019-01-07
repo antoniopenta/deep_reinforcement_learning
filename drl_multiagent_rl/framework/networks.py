@@ -22,7 +22,7 @@ class Actor(nn.Module):
 
         """
         super(Actor, self).__init__()
-        self.seed = torch.manual_seed(config.actor_seed)
+
         self.fc1 = nn.Linear(state_size, config.actor_fc1_units)
         self.fc2 = nn.Linear(config.actor_fc1_units, config.actor_fc2_units)
         self.fc3 = nn.Linear(config.actor_fc2_units, config.actor_fc3_units)
@@ -57,7 +57,7 @@ class Critic(nn.Module):
 
         """
         super(Critic, self).__init__()
-        self.seed = torch.manual_seed(config.critic_seed)
+
         self.fc1 = nn.Linear(state_size+state_size+action_size+action_size, config.critic_fc1_units)
         self.fc2 = nn.Linear(config.critic_fc1_units, config.critic_fc2_units)
         self.fc3 = nn.Linear(config.critic_fc2_units, config.critic_fc3_units)

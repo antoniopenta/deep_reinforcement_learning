@@ -9,7 +9,7 @@ from framework.networks import Actor, Critic
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-
+from torch.nn import MSELoss
 from framework.agent import *
 from utils.buffer import *
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -85,7 +85,7 @@ class MADDPGLearner:
         estimated_q = current_agent.critic(critic_input)
 
         #huber_loss = torch.nn.SmoothL1Loss()
-        critic_loss = F.mse_loss(estimated_q, target_q.detach())
+        critic_loss = MSELoss()(estimated_q, target_q.detach())
         critic_loss.backward()
         torch.nn.utils.clip_grad_norm_(current_agent.critic.parameters(), self.config.grad_normalization_critic)
         current_agent.critic_optimizer.step()

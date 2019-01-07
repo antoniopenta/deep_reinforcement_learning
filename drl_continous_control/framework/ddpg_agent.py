@@ -22,6 +22,8 @@ N_TIME_STEPS = 20       # every n time step do update
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+#https://github.com/hortovanyi/DRLND-Continuous-Control/blob/master/ddpg_agent.py
+
 class Agent():
     """Interacts with and learns from the environment."""
     memory = None

@@ -4,7 +4,6 @@ astor==0.7.1
 atomicwrites==1.2.1
 attrs==18.2.0
 backcall==0.1.0
--e git+https://github.com/openai/baselines.git@5115707ce9c8a85e1bc4a5258be295162f312d01#egg=baselines
 bleach==1.5.0
 certifi==2018.11.29
 chardet==3.0.4

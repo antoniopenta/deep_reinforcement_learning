@@ -54,7 +54,7 @@ class Config():
         self.noise_seed = 34
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma = 0.2
+        self.noise_sigma = 0.8
 
         self.agent_noise_multiplier = 1
 

@@ -110,7 +110,6 @@ if __name__=='__main__':
 
             if np.any(dones):
                 break
-
         value_score_episode = max(np.mean(agent_scores[0]),np.mean(agent_scores[1]))
         scores_episode.append(value_score_episode)
         scores_window.append(value_score_episode)

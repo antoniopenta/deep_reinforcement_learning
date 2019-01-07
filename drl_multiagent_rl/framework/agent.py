@@ -36,6 +36,7 @@ class DDPGAgent:
     def step(self, obs):
         obs = obs.to(device)
         action = self.actor(obs) + to_tensor(self.config.agent_noise_multiplier* self.noise.sample())
+        action = torch.clamp(action, -1, 1)
         return action
 
     def target_act(self, obs):

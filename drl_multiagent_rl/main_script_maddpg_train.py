@@ -63,6 +63,11 @@ if __name__=='__main__':
     maddpg = MADDPGLearner(agents, config)
 
     cumulative_t_step = 0
+
+    exploration = 1
+    exploration_decay = 0.999
+    exploration_min =0.05
+
     for i_episode in range(0, config.num_episodes):
 
         env_info = env.reset(train_mode=True)[brain_name]
@@ -71,16 +76,15 @@ if __name__=='__main__':
 
         agent_scores_episode = np.zeros(maddpg.num_agents)
 
-        exploration = max(0, config.num_exploration_episodes - i_episode) / config.num_exploration_episodes
-        exploration = config.exploration_range[1] + (
-                                                        config.exploration_range[0] - config.exploration_range[
-                                                            1]) * exploration
-        #exploration = 1
         maddpg.reset_noise()
+
+        exploration = max(exploration * exploration_decay, exploration_min)
 
         for t_step in range(config.max_steps_4_episodes):
 
             torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
+
+
 
             actions = maddpg.step(torch_states,noise_scale=exploration)
             if config.log:
@@ -111,8 +115,8 @@ if __name__=='__main__':
             # if t_step % config.time_stamp_report:
             #     print('\rTimestep {}\tScore 1 : {:.2f}\tmin 1: {:.2f}\tmax 1: {:.2f}\tScore 2 : {:.2f}\tmin 2: {:.2f}\tmax 2: {:.2f}'
             #           .format(t_step, np.mean(agent_scores[0]), np.min(agent_scores[0]), np.max(agent_scores[0]),np.mean(agent_scores[1]), np.min(agent_scores[1]), np.max(agent_scores[1])), end="")
-            cumulative_t_step+=1
-            if (cumulative_t_step % config.maddpa_n_learn_steps):
+            #cumulative_t_step+=1
+            if (t_step % config.maddpa_n_learn_steps):
                 maddpg.learn()
 
             if np.any(dones):
@@ -125,8 +129,8 @@ if __name__=='__main__':
 
         if i_episode % config.time_stamp_report:
             print(
-                'Episode {}\t Last Score  : {:.4f}\t Average Score : {:.4f} \n'
-                    .format(i_episode, value_score_episode, avg_score), end="")
+                'Episode {}\t Last Score  : {:.4f}\t Average Score : {:.4f}\t Eps: {:.4} \n'
+                    .format(i_episode, value_score_episode, avg_score,exploration), end="")
         if avg_score >= config.max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - config.score_window_size,

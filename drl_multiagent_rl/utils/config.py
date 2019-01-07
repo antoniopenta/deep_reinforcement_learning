@@ -9,7 +9,7 @@ class Config():
 
     def __init__(self):
 
-        self.version = 2  # version (int): version number to save model check point and files
+        self.version = 1  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
@@ -56,6 +56,8 @@ class Config():
 
         self.num_exploration_episodes = 25000
         self.exploration_range = (0.3, 0.0)
+        self.eps_max=1
+        self.eps_decay = 0.99
 
         self.agent_noise_multiplier = 1
 
@@ -63,8 +65,8 @@ class Config():
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
         self.maddpa_batch_size = 128  # minibatch size
 
-        self.maddpa_n_learn_updates = 1  # number of learning updates
-        self.maddpa_n_learn_steps = 15  # every n time step do update
+        self.maddpa_n_learn_updates = 5  # number of learning updates
+        self.maddpa_n_learn_steps = 2  # every n time step do update
 
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-3  # for soft update of target parameters

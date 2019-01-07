@@ -16,9 +16,9 @@ class DDPGAgent:
         super(DDPGAgent, self).__init__()
 
         self.actor = Actor(state_size, action_size, config).to(device)
-        self.critic = Critic(state_size, 2*action_size, config).to(device)
+        self.critic = Critic(state_size, action_size, config).to(device)
         self.target_actor = Actor(state_size, action_size, config).to(device)
-        self.target_critic = Critic(state_size, 2*action_size, config).to(device)
+        self.target_critic = Critic(state_size, action_size, config).to(device)
 
         self.noise = config.random_process_fn
 
@@ -41,6 +41,7 @@ class DDPGAgent:
     def target_act(self, obs):
         obs = obs.to(device)
         action = self.target_actor(obs) + to_tensor(self.config.agent_noise_multiplier * self.noise.sample())
+        action=torch.clamp(action, -1, 1)
         return action
 
 

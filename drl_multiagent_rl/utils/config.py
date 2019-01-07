@@ -11,7 +11,7 @@ class Config():
 
         self.version = 1  # version (int): version number to save model check point and files
 
-        self.log=False # log used to print instructions
+        self.log = False # log used to print instructions
 
         self.report_value = 100
         self.time_stamp_report = 20  #
@@ -27,8 +27,8 @@ class Config():
 
         self.actor_fc1_units = 256  # number neurons first layer actor
         self.actor_fc2_units = 128 # number neurons second layer actor
-        self.critic_fc1_units = 256  # number neurons first layer actor
-        self.critic_fc2_units = 128 # number neurons second layer actor
+        self.critic_fc1_units = 256  # number neurons first layer critic
+        self.critic_fc2_units = 128 # number neurons second layer critic
 
 
         self.actor_non_linearity = F.relu
@@ -61,8 +61,8 @@ class Config():
 
         self.random_process_fn.__name__ = 'OUNoise'
 
-        self.maddpa_buffer_size = int(1e6)  # replay buffer size
-        self.maddpa_batch_size = 128  # minibatch size
+        self.maddpa_buffer_size = int(1e8)  # replay buffer size
+        self.maddpa_batch_size = 512  # minibatch size
 
         self.maddpa_n_learn_updates = 10  # number of learning updates
         self.maddpa_n_learn_steps = 20  # every n time step do update
@@ -73,9 +73,9 @@ class Config():
         self.buffer_seed = 28 # buffer seed for sampling
 
 
-        self.grad_normalization_actor = 1
+        self.grad_normalization_actor = 0.5
 
-        self.grad_normalization_critic = 1
+        self.grad_normalization_critic = 0.5
 
 
     def __str__(self):

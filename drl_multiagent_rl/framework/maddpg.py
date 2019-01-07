@@ -24,7 +24,7 @@ class MADDPGLearner:
 
         self.num_agents = len(self.maddpg_agents)
 
-        self.buffer = ReplayBuffer(config.maddpa_buffer_size,config.maddpa_batch_size,config.buffer_seed)
+        self.buffer = ReplayBuffer(config.maddpa_buffer_size,config.maddpa_batch_size,self.num_agents,config.buffer_seed)
 
         self.config = config
 
@@ -32,15 +32,15 @@ class MADDPGLearner:
     def agents_act(self, states):
         """get actions from all agents"""
         actions = []
-        for agent in self.maddpg_agents:
-            actions.append(agent.step(states))
+        for agent,state in zip(self.maddpg_agents,states):
+            actions.append(agent.step(state))
         return actions
 
     def agents_target_act(self, states):
         """get target network actions from all the agents """
         target_actions = []
-        for agent in self.maddpg_agents:
-            target_actions.append(agent.target_act(states))
+        for agent,state in zip(self.maddpg_agents,states):
+            target_actions.append(agent.target_act(state))
         return target_actions
 
 
@@ -50,11 +50,11 @@ class MADDPGLearner:
 
         if self.config.log:
             print('\n')
-            print('states',states.shape)
-            print('actions',actions.shape)
-            print('rewards',rewards.shape)
-            print('next states', next_states.shape)
-            print('dones',dones.shape)
+            print('states',len(states),states[0].shape)
+            print('actions',len(actions),actions[0].shape)
+            print('rewards',len(rewards),rewards[0].shape)
+            print('next states', len(next_states),next_states[0].shape)
+            print('dones',len(dones),dones[0].shape)
             print('\n')
 
         current_agent = self.maddpg_agents[agent_number]
@@ -63,29 +63,29 @@ class MADDPGLearner:
 
         # critic loss = batch mean of (y- Q(s,a) from target network)^2
         # y = reward of this timestep + discount * Q(st+1,at+1) from target network
-        target_actions = self.agents_target_act(states)
+        target_actions = self.agents_target_act(next_states)
 
         if self.config.log:
             print('\ntarget_actions',len(target_actions),target_actions[0].shape)
+            print('nextstates',len(next_states),next_states[0].shape)
+            print('target_actions',len(target_actions),target_actions[0].shape)
 
-        target_actions = torch.cat(target_actions, dim=1)
+        target_critic_input = torch.cat((*next_states, *target_actions), dim=1)
 
         if self.config.log:
-            print('\ntarget_actions cat', target_actions.shape)
+            print('\ntarget_actions cat', target_critic_input.shape)
 
         with torch.no_grad():
-            q_next = current_agent.target_critic(states, target_actions)
+            q_next = current_agent.target_critic(target_critic_input)
 
         target_q = rewards[agent_number].view(-1, 1) + self.config.maddpa_gamma * q_next * (1 - dones[agent_number].view(-1, 1))
 
-        actions = self.agents_act(states)
+        critic_input = torch.cat((*states, *actions), dim=1)
 
-        actions = torch.cat(actions, dim=1)
+        estimated_q = current_agent.critic(critic_input)
 
-        estimated_q = current_agent.critic(states, actions)
-
-        huber_loss = torch.nn.SmoothL1Loss()
-        critic_loss = huber_loss(estimated_q, target_q.detach())
+        #huber_loss = torch.nn.SmoothL1Loss()
+        critic_loss = F.mse_loss(estimated_q, target_q.detach())
         critic_loss.backward()
         torch.nn.utils.clip_grad_norm_(current_agent.critic.parameters(), self.config.grad_normalization_critic)
         current_agent.critic_optimizer.step()
@@ -97,20 +97,20 @@ class MADDPGLearner:
         # saves some time for computing derivative
 
         all_actor_actions = []
-        for i in range(self.num_agents):
+        for i,state in zip(range(self.num_agents),states):
             if i == agent_number:
-                all_actor_actions.append(current_agent.actor(states))
+                all_actor_actions.append(current_agent.actor(state))
             else:
                 other_agent = self.maddpg_agents[i]
-                all_actor_actions.append(other_agent.actor(states))
+                all_actor_actions.append(other_agent.actor(state))
         if self.config.log:
             print(10*'#')
             print(all_actor_actions[0].shape)
             print(10 * '#')
 
-        all_actor_actions = torch.cat(tuple(all_actor_actions), dim=1)
+        critic_input = torch.cat((*states, *all_actor_actions), dim=1)
         # get the policy gradient
-        actor_loss = -current_agent.critic(states, all_actor_actions).mean()
+        actor_loss = -current_agent.critic(critic_input).mean()
         actor_loss.backward()
         # torch.nn.utils.clip_grad_norm_(agent.actor.parameters(),0.5)
         current_agent.actor_optimizer.step()
@@ -135,8 +135,7 @@ class MADDPGLearner:
 
     def remember(self, states, actions, rewards, next_states, dones):
 
-        for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
-            self.buffer.add(state, action, reward, next_state, done)
+        self.buffer.append(states, actions, rewards, next_states, dones)
 
 
 

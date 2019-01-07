@@ -55,8 +55,8 @@ class Critic(nn.Module):
         """
         super(Critic, self).__init__()
         self.seed = torch.manual_seed(config.critic_seed)
-        self.fc1 = nn.Linear(state_size, config.critic_fc1_units)
-        self.fc2 = nn.Linear(config.critic_fc1_units+action_size, config.critic_fc2_units)
+        self.fc1 = nn.Linear(state_size+state_size+action_size+action_size, config.critic_fc1_units)
+        self.fc2 = nn.Linear(config.critic_fc1_units, config.critic_fc2_units)
         self.fc3 = nn.Linear(config.critic_fc2_units, 2)
         self.reset_parameters()
         self.config=config
@@ -66,13 +66,9 @@ class Critic(nn.Module):
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
 
-    def forward(self, state, action):
+    def forward(self, x):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        xs = self.config.critic_non_linearity(self.fc1(state))
-        if self.config.log:
-            print('state.shape,cricit',state.shape)
-            print('action shape,cricit',action.shape)
-        x = torch.cat((xs, action), dim=1)
+        x = self.config.critic_non_linearity(self.fc1(x))
         x = self.config.critic_non_linearity(self.fc2(x))
         return self.fc3(x)
 

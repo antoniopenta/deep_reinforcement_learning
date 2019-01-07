@@ -77,7 +77,11 @@ if __name__=='__main__':
             torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
 
             actions = maddpg.step(torch_states)
-
+            if config.log:
+                print(100*'*')
+                print('actions',actions)
+                print('states',torch_states)
+                print(100 * '*')
             actions = [action.data.numpy() for action in actions]
 
             env_info = env.step(actions)[brain_name]  # send the action to the environment

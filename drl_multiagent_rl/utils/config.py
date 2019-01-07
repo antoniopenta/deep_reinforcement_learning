@@ -16,7 +16,7 @@ class Config():
         self.report_value = 100
         self.time_stamp_report = 20  #
 
-        self.num_episodes = 100  # num_episodes (int): maximum number of training episodes
+        self.num_episodes = 2000  # num_episodes (int): maximum number of training episodes
         self.max_score = 0.5  # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
         self.score_window_size = 100  # score_window_size(int): buffer size for the score
         self.max_steps_4_episodes = 1000  # max_t (int) max length of the time stemps
@@ -71,7 +71,7 @@ class Config():
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
         self.maddpa_batch_size = 128  # minibatch size
 
-        self.maddpa_n_learn_updates = 5  # number of learning updates
+        self.maddpa_n_learn_updates = 1  # number of learning updates
         self.maddpa_n_learn_steps = 2  # every n time step do update
 
         self.maddpa_gamma = 0.99  # discount factor

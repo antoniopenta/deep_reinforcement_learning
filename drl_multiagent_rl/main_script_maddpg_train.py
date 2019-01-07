@@ -97,9 +97,9 @@ if __name__=='__main__':
             agent_scores += rewards
 
 
-            if t_step % config.time_stamp_report:
-                print('\rTimestep {}\tScore 1 : {:.2f}\tmin 1: {:.2f}\tmax 1: {:.2f}\tScore 2 : {:.2f}\tmin 2: {:.2f}\tmax 2: {:.2f}'
-                      .format(t_step, np.mean(agent_scores[0]), np.min(agent_scores[0]), np.max(agent_scores[0]),np.mean(agent_scores[1]), np.min(agent_scores[1]), np.max(agent_scores[1])), end="")
+            # if t_step % config.time_stamp_report:
+            #     print('\rTimestep {}\tScore 1 : {:.2f}\tmin 1: {:.2f}\tmax 1: {:.2f}\tScore 2 : {:.2f}\tmin 2: {:.2f}\tmax 2: {:.2f}'
+            #           .format(t_step, np.mean(agent_scores[0]), np.min(agent_scores[0]), np.max(agent_scores[0]),np.mean(agent_scores[1]), np.min(agent_scores[1]), np.max(agent_scores[1])), end="")
 
             if (t_step % config.maddpa_n_learn_steps):
                 maddpg.learn()

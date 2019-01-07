@@ -68,8 +68,8 @@ class Config():
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
         self.maddpa_batch_size = 128  # minibatch size
 
-        self.maddpa_n_learn_updates = 10  # number of learning updates
-        self.maddpa_n_learn_steps = 20  # every n time step do update
+        self.maddpa_n_learn_updates = 5  # number of learning updates
+        self.maddpa_n_learn_steps = 2  # every n time step do update
 
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-3  # for soft update of target parameters

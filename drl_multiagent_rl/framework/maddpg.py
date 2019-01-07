@@ -28,6 +28,8 @@ class MADDPGLearner:
 
         self.config = config
 
+        self.t_step = 0
+
 
     def agents_act(self, states):
         """get actions from all agents"""
@@ -112,7 +114,7 @@ class MADDPGLearner:
         #regularization
         #actor_loss += (curr_actor_action ** 2).mean() * 1e-3
         actor_loss.backward()
-        torch.nn.utils.clip_grad_norm_(current_agent.actor.parameters(),self.config.grad_normalization_actor)
+        #torch.nn.utils.clip_grad_norm_(current_agent.actor.parameters(),self.config.grad_normalization_actor)
         current_agent.actor_optimizer.step()
 
     def reset_noise(self):
@@ -125,13 +127,16 @@ class MADDPGLearner:
     def learn(self):
         if len(self.buffer) < self.config.maddpa_batch_size:
             return
-        for _ in range(0,self.config.maddpa_n_learn_updates):
-            for i_agent in range(len(self.maddpg_agents)):
-                sample = self.buffer.sample()
-                self._update(sample, i_agent)
 
-
+        self.t_step = (self.t_step + 1) % self.config.UPDATE_EVERY
+        if self.t_step == 0:
+            self.train_mode()
+            for _ in range(0,self.config.UPDATES_PER_STEP):
+                for i_agent in range(len(self.maddpg_agents)):
+                    sample = self.buffer.sample()
+                    self._update(sample, i_agent)
         self.update_targets()
+        self.eval_mode()
 
     def remember(self, states, actions, rewards, next_states, dones):
 
@@ -149,5 +154,11 @@ class MADDPGLearner:
 
 
 
+    def train_mode(self):
+        for agent in self.maddpg_agents:
+            agent.train_mode()
 
+    def eval_mode(self):
+        for agent in self.maddpg_agents:
+            agent.eval_mode()
 

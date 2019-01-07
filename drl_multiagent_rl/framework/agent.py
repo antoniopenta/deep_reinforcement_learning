@@ -68,3 +68,15 @@ class DDPGAgent:
         self.critic.load_state_dict(save_dict['critic'])
         self.target_actor.load_state_dict(save_dict['target_actor'])
         self.target_critic.load_state_dict(save_dict['target_critic'])
+
+    def train_mode(self):
+        self.actor.train()
+        self.critic.train()
+        self.target_actor.train()
+        self.target_critic.train()
+
+    def eval_mode(self):
+        self.actor.eval()
+        self.critic.eval()
+        self.target_actor.eval()
+        self.target_critic.eval()

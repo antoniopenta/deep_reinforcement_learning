@@ -62,20 +62,17 @@ if __name__=='__main__':
 
     maddpg = MADDPGLearner(agents, config)
 
-    cumulative_t_step = 0
 
-    exploration = 1
-    exploration_decay = 0.999
-    exploration_min =0.05
 
-    EPSILON_MAX = 1.0
-    EPSILON_MIN = 0.1
-    EPSILON_DECAY = 0
+    exploration_EPSILON_MAX = 1.0
+    exploration_EPSILON_MIN = 0.05
+    exploration_EPSILON_DECAY = 0.999
 
     num_exploration_episodes = 25000
     exploration_range = (0.3, 0.0)
 
-    exploration = EPSILON_MAX
+    exploration_eps= exploration_EPSILON_MAX
+
     for i_episode in range(0, config.num_episodes):
 
         env_info = env.reset(train_mode=True)[brain_name]
@@ -86,25 +83,24 @@ if __name__=='__main__':
 
         maddpg.reset_noise()
 
-
-        if exploration - EPSILON_DECAY > EPSILON_MIN:
-            exploration -= EPSILON_DECAY
-        else:
-            exploration = EPSILON_MIN
+        exploration_eps = max(exploration_EPSILON_MIN, exploration_eps * exploration_EPSILON_DECAY)
 
 
+        score_episode = []
 
         for t_step in range(config.max_steps_4_episodes):
 
             torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
 
 
-            actions = maddpg.step(torch_states,noise_scale=exploration)
+            actions = maddpg.step(torch_states, noise_scale=exploration_eps)
+
             if config.log:
                 print(100*'*')
                 print('actions',actions)
                 print('states',torch_states)
                 print(100 * '*')
+
             actions = [action.data.numpy() for action in actions]
 
             env_info = env.step(actions)[brain_name]  # send the action to the environment
@@ -124,6 +120,8 @@ if __name__=='__main__':
             states = next_states
             agent_scores_episode += rewards
 
+            score_episode.append(max(agent_scores_episode))
+
 
 
             if np.any(dones):
@@ -133,11 +131,12 @@ if __name__=='__main__':
         all_scores.append(value_score_episode)
         scores.append(value_score_episode)
         avg_score = np.mean(scores)
+        score_episode_mean=np.mean(score_episode)
 
         if i_episode % config.time_stamp_report:
             print(
-                'Episode {}\t Last Score  : {:.4f}\t Average Score : {:.4f}\t Eps: {:.4} ,tstamp {:4}\n'
-                    .format(i_episode, value_score_episode, avg_score,exploration,t_step), end="")
+                'Episode {}\t Average Score Last Espisode  : {:.4f}\t Average Score : {:.4f}\t Eps: {:.4} ,Length Episode {:4}\n'
+                    .format(i_episode, score_episode_mean, avg_score,exploration_eps,t_step), end="")
         if avg_score >= config.max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - config.score_window_size,

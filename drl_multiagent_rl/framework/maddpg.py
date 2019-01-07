@@ -111,7 +111,7 @@ class MADDPGLearner:
         critic_input = torch.cat((*states, *all_actor_actions), dim=1)
         # get the policy gradient
         actor_loss = -current_agent.critic(critic_input).mean()
-        #regularization
+        #regularization from https://github.com/RitwikSaikia/drlnd_p3_colab_compete
         #actor_loss += (curr_actor_action ** 2).mean() * 1e-3
         actor_loss.backward()
         #torch.nn.utils.clip_grad_norm_(current_agent.actor.parameters(),self.config.grad_normalization_actor)
@@ -135,8 +135,8 @@ class MADDPGLearner:
                 for i_agent in range(len(self.maddpg_agents)):
                     sample = self.buffer.sample()
                     self._update(sample, i_agent)
-        self.update_targets()
-        self.eval_mode()
+                self.update_targets()
+            self.eval_mode()
 
     def remember(self, states, actions, rewards, next_states, dones):
 

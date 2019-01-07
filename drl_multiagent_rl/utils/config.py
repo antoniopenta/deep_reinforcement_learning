@@ -52,27 +52,19 @@ class Config():
 
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma =  0.2
+        self.noise_sigma =  3
 
-        self.num_exploration_episodes = 25000
-        self.exploration_range = (0.3, 0.0)
-        self.eps_max=1
-        self.eps_decay = 0.99
-
-        self.agent_noise_multiplier = 1
 
 
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
         self.maddpa_batch_size = 1024  # minibatch size
 
-        self.maddpa_n_learn_updates = 10  # how many time run update
-        self.maddpa_n_learn_steps = 20  # every n time step do update
 
-        self.UPDATE_EVERY = 20
-        self.UPDATES_PER_STEP = 10
+        self.UPDATE_EVERY = 10 # every n time step do update
+        self.UPDATES_PER_STEP = 4 # how many time run update
 
 
-        self.maddpa_gamma = 0.99  # discount factor
+        self.maddpa_gamma = 0.95  # discount factor
         self.maddpa_tau = 1e-3   # for soft update of target parameters
 
 

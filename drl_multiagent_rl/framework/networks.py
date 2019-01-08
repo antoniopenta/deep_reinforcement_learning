@@ -25,11 +25,11 @@ class Actor(nn.Module):
 
         self.fc1 = nn.Linear(state_size, config.actor_fc1_units)
         self.fc2 = nn.Linear(config.actor_fc1_units, config.actor_fc2_units)
-        self.fc3 = nn.Linear(config.actor_fc2_units, config.actor_fc3_units)
-        self.fc4 = nn.Linear(config.actor_fc3_units, action_size)
+        self.fc3 = nn.Linear(config.actor_fc2_units, action_size)
+        #self.fc4 = nn.Linear(config.actor_fc3_units, action_size)
         self.bn1 = nn.BatchNorm1d(config.actor_fc1_units)
         self.bn2 = nn.BatchNorm1d(config.actor_fc2_units)
-        self.bn3 = nn.BatchNorm1d(config.actor_fc3_units)
+        #self.bn3 = nn.BatchNorm1d(config.actor_fc3_units)
 
         self.reset_parameters()
         self.config = config
@@ -46,14 +46,14 @@ class Actor(nn.Module):
             x = self.bn1(x)
             x = self.config.actor_non_linearity(self.fc2(x))
             x = self.bn2(x)
-            x = self.config.actor_non_linearity(self.fc3(x))
-            x = self.bn3(x)
+            #x = self.config.actor_non_linearity(self.fc3(x))
+            #x = self.bn3(x)
         else:
             x = self.config.actor_non_linearity(self.fc1(state))
             x = self.config.actor_non_linearity(self.fc2(x))
-            x = self.config.actor_non_linearity(self.fc3(x))
+            #x = self.config.actor_non_linearity(self.fc3(x))
 
-        return torch.tanh(self.fc4(x))
+        return torch.tanh(self.fc3(x))
 
 
 class Critic(nn.Module):
@@ -72,14 +72,14 @@ class Critic(nn.Module):
 
         self.fc1 = nn.Linear(state_size+state_size+action_size+action_size, config.critic_fc1_units)
         self.fc2 = nn.Linear(config.critic_fc1_units, config.critic_fc2_units)
-        self.fc3 = nn.Linear(config.critic_fc2_units, config.critic_fc3_units)
-        self.fc4 = nn.Linear(config.critic_fc3_units, 2)
+        self.fc3 = nn.Linear(config.critic_fc2_units, 2)
+        #self.fc4 = nn.Linear(config.critic_fc3_units, 2)
 
 
         self.bn0 = nn.BatchNorm1d(state_size+state_size+action_size+action_size)
         self.bn1 = nn.BatchNorm1d(config.critic_fc1_units)
         self.bn2 = nn.BatchNorm1d(config.critic_fc2_units)
-        self.bn3 = nn.BatchNorm1d(config.critic_fc3_units)
+        #self.bn3 = nn.BatchNorm1d(config.critic_fc3_units)
 
 
         self.reset_parameters()
@@ -98,7 +98,7 @@ class Critic(nn.Module):
         x = self.bn1(x)
         x = self.config.critic_non_linearity(self.fc2(x))
         x = self.bn2(x)
-        x = self.config.critic_non_linearity(self.fc3(x))
-        x = self.bn3(x)
-        return self.fc4(x)
+        #x = self.config.critic_non_linearity(self.fc3(x))
+        #x = self.bn3(x)
+        return self.fc3(x)
 

@@ -36,11 +36,7 @@ class DDPGAgent:
 
     def step(self, obs,noise_scale):
         obs = obs.to(device)
-        if np.random.random() > 0.5:
-            delta = to_tensor(noise_scale* self.noise.sample())
-        else:
-            delta = -to_tensor(noise_scale * self.noise.sample())
-        action = self.actor(obs) + delta
+        action = self.actor(obs) + to_tensor(noise_scale * self.noise.sample())
         action = torch.clamp(action, -1, 1)
         return action
 

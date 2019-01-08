@@ -131,11 +131,12 @@ class MADDPGLearner:
         self.t_step = (self.t_step + 1) % self.config.UPDATE_EVERY
         if self.t_step == 0:
             self.train_mode()
-            for _ in range(0,self.config.UPDATES_PER_STEP):
+            for _ in range(0, self.config.UPDATES_PER_STEP):
                 for i_agent in range(len(self.maddpg_agents)):
                     sample = self.buffer.sample()
                     self._update(sample, i_agent)
-                self.update_targets()
+                    self._update_target_agent(i_agent)
+
             self.eval_mode()
 
     def remember(self, states, actions, rewards, next_states, dones):
@@ -150,9 +151,11 @@ class MADDPGLearner:
             soft_update(ddpg_agent.target_actor, ddpg_agent.actor, self.config.maddpa_tau)
             soft_update(ddpg_agent.target_critic, ddpg_agent.critic, self.config.maddpa_tau)
 
-
-
-
+    def _update_target_agent(self,index_agent):
+        """soft update targets"""
+        ddpg_agent=self.maddpg_agents[index_agent]
+        soft_update(ddpg_agent.target_actor, ddpg_agent.actor, self.config.maddpa_tau)
+        soft_update(ddpg_agent.target_critic, ddpg_agent.critic, self.config.maddpa_tau)
 
     def train_mode(self):
         for agent in self.maddpg_agents:

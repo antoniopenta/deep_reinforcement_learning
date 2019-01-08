@@ -25,7 +25,7 @@ class Config():
 
         self.actor_fc1_units = 256  # number neurons first layer actor
         self.actor_fc2_units = 128 # number neurons second layer actor
-        self.actor_fc3_units = 64  # number neurons first layer actor
+        self.actor_fc3_units = 32  # number neurons first layer actor
 
         self.critic_fc1_units = 256  # number neurons first layer critic
         self.critic_fc2_units = 128 # number neurons second layer critic
@@ -42,8 +42,8 @@ class Config():
 
 
 
-        self.actor_lr = 1e-4  # learning rate of the actor
-        self.critic_lr = 1e-4  # learning rate of the critic
+        self.actor_lr = 1e-3 # learning rate of the actor
+        self.critic_lr = 1e-3  # learning rate of the critic
 
         self.actor_weight_decay = 0.0  # L2 weight decay
         self.critic_weight_decay = 0.0  # L2 weight decay
@@ -52,20 +52,20 @@ class Config():
 
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma =  3
+        self.noise_sigma =  0.2
 
 
 
         self.maddpa_buffer_size = int(1e6)  # replay buffer size
-        self.maddpa_batch_size = 1024  # minibatch size
+        self.maddpa_batch_size = 256  # minibatch size
 
 
-        self.UPDATE_EVERY = 10 # every n time step do update
-        self.UPDATES_PER_STEP = 4 # how many time run update
+        self.UPDATE_EVERY = 3 # every n time step do update
+        self.UPDATES_PER_STEP = 9 # how many time run update
 
 
-        self.maddpa_gamma = 0.95  # discount factor
-        self.maddpa_tau = 1e-3   # for soft update of target parameters
+        self.maddpa_gamma = 0.99  # discount factor
+        self.maddpa_tau = 1e-2   # for soft update of target parameters
 
 
 

@@ -9,14 +9,13 @@ class Config():
 
     def __init__(self):
 
-        self.version = 2  # version (int): version number to save model check point and files
+        self.version = 1  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
-        self.time_stamp_report = 20  #log result within the espiside each time_stamp_report
+        self.time_stamp_report = 50  #log result within the espiside each time_stamp_report
 
-
-        self.num_episodes = 2000  # num_episodes (int): maximum number of training episodes
+        self.num_episodes = 800  # num_episodes (int): maximum number of training episodes
         self.max_score = 0.5  # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
         self.score_window_size = 100  # score_window_size(int): buffer size for the score
         self.max_steps_4_episodes = 1000  # max_t (int) max length of the time stemps
@@ -29,7 +28,7 @@ class Config():
 
         self.critic_fc1_units = 128  # number neurons first layer critic
         self.critic_fc2_units = 64 # number neurons second layer critic
-        self.critic_fc3_units= 64 # number neurons third layer critic
+        self.critic_fc3_units= 32 # number neurons third layer critic
 
         self.critic_dropout_p = 0.5
 

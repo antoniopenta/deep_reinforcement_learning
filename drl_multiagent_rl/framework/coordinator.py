@@ -37,7 +37,7 @@ class MADDPGCoordinator():
         """get actions from all agents"""
         actions = []
         for agent,state in zip(self.maddpg_agents, states):
-            actions.append(agent.local_act(to_tensor(state), exploration).data.numpy())
+            actions.append(agent.local_act(to_tensor(state), exploration=exploration).data.numpy())
         return actions
 
 
@@ -54,7 +54,7 @@ class MADDPGCoordinator():
 
     def step(self,t_step):
 
-        if t_step % self.config.ddpg_update_every:
+        if t_step % self.config.ddpg_update_every==0:
             if len(self.buffer) < self.config.maddpa_batch_size:
                 return
 

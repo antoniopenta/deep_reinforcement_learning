@@ -89,10 +89,13 @@ class DDPGAgent():
         self.soft_update(self.local_critic, self.target_critic, self.config.maddpa_tau)
         self.soft_update(self.local_actor, self.target_actor, self.config.maddpa_tau)
 
-    def local_act(self, state,exploration):
+    def local_act(self, state,exploration=1,add_noise=True):
         self.local_actor.eval()
         with torch.no_grad():
-            action = self.local_actor(state) + to_tensor(exploration * self.noise.sample())
+            if add_noise:
+                action = self.local_actor(state) + to_tensor(exploration * self.noise.sample())
+            else:
+                action = self.local_actor(state)
         self.local_actor.train()
         action = torch.clamp(action, -1, 1)
         return action

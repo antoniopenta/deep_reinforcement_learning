@@ -1,32 +1,22 @@
 
 
+
+
+
 import os
-import random
-import torch
-import numpy as np
 from collections import deque
-import matplotlib.pyplot as plt
-
+import json
 from unityagents import UnityEnvironment
-import numpy as np
-from collections import  Counter
-
-from  framework.ddpg_agent import Agent
-from  framework.ddpg_model import *
-
-import pandas as pd
-
-
-
-
+from utils.config import Config
+from framework.coordinator import *
 
 
 
 if __name__=='__main__':
 
+    config = Config()
 
-    version = 1 # version(int): version for the model
-    env = UnityEnvironment(file_name=os.path.join('env','Reacher.app'))
+    env = UnityEnvironment(file_name=os.path.join('env', 'Tennis.app'))
 
     # get the default brain
     brain_name = env.brain_names[0]
@@ -49,39 +39,47 @@ if __name__=='__main__':
     print('There are {} agents. Each observes a state with length: {}'.format(states.shape[0], state_size))
     print('The state for the first agent looks like:', states[0])
 
+    # score buffers
+
+    scores_window = deque(maxlen=config.score_window_size)
     scores = np.zeros(num_agents)
+    scores_episode = []
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # agent
 
-    random_seed = 0
-    Agent.actor_local = Actor(state_size, action_size, random_seed).to(device)
-    Agent.actor_local.load_state_dict(torch.load(os.path.join('model', 'checkpoint_actor_' + str(version) + '.pth')))
+    agents = [DDPGAgent(state_size, action_size, config, 1),
+              DDPGAgent(state_size, action_size, config, 2)]
 
-    agents = []
+    for agent in agents:
+        agent.load('model','checkpoint_'+'agent_'+str(agent.agent_id)+'_226',str(config.version))
 
-    for i in range(num_agents):
-        agents.append(Agent(state_size, action_size, random_seed=0))
+    scores = np.zeros(num_agents)
+    try:
+        while True:
+            actions = []
+            for agent, state in zip(agents, states):
+                actions.append(agent.local_act(to_tensor(state),add_noise=False).data.numpy())
 
-    while True:
-        actions = np.array([agents[i].agents_act(states[i]) for i in range(num_agents)])
+            env_info = env.step(actions)[brain_name]  # send the action to the environment
+            next_states = env_info.vector_observations  # get the next state
+            rewards = env_info.rewards  # get the reward
+            dones = env_info.local_done
 
-        env_info = env.step(actions)[brain_name]  # send the action to the environment
-        next_states = env_info.vector_observations  # get the next state
-        rewards = env_info.rewards  # get the reward
-        dones = env_info.local_done
+            states = next_states
+            scores += rewards
 
-        states = next_states
-        scores += rewards
+            print('\rScores: {:.2f}\t{:.2f}'
+                  .format(scores[0], scores[1]), end="")
 
-        print('\rScore: {:.2f}\tmin: {:.2f}\tmax: {:.2f}'
-              .format(np.mean(scores), np.min(scores), np.max(scores)), end="")
-
-        if np.any(dones):
-            break
-
-    print("\nScores: {}".format(scores))
+            if np.any(dones):
+                # reset the environment
+                env_info = env.reset(train_mode=False)[brain_name]
+                # examine the state space
+                states = env_info.vector_observations
+                pass
+    except KeyboardInterrupt:
+        print("\n Final Scores: {}".format(scores))
 
     env.close()
 
-
-
+    print("\n Final Scores: {}".format(scores))

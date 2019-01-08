@@ -4,7 +4,7 @@ import json
 from unityagents import UnityEnvironment
 from utils.config import Config
 from framework.coordinator import *
-
+import math
 
 def exploration_strategy_1(eps, config):
     eps *= config.exploration_episilon_decay
@@ -14,14 +14,26 @@ def exploration_strategy_1(eps, config):
 
 
 
+def exploration_strategy_2(eps, config):
+    eps *= config.exploration_episilon_decay
+    if math.fabs(eps) < config.exploration_episilon_min:
+         eps = config.exploration_episilon_min
+    if  np.random.random()>0.5:
+        return -eps
+    else:
+        return eps
+
+
 
 if __name__=='__main__':
 
 
 
+
+
     config = Config()
 
-    Linux = True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux = False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -69,8 +81,8 @@ if __name__=='__main__':
     maddpg = MADDPGCoordinator(agents,action_size,config)
 
     exploration_eps = config.exploration_epsilon_max
-
-
+    best_score= -np.inf
+    solved_score = None
 
     for i_episode in range(0, config.num_episodes):
 
@@ -103,7 +115,6 @@ if __name__=='__main__':
             exploration_eps = exploration_strategy_1(exploration_eps,config)
 
             if np.any(dones):
-                #print(t_step)
                 break
 
         score = np.max(scores)
@@ -111,25 +122,36 @@ if __name__=='__main__':
         scores_episode.append(score)
         avg_score = np.mean(scores_window)
 
-        if i_episode % config.time_stamp_report:
+
+        if i_episode % config.time_stamp_report==0:
             print(
                 'Episode {}\t Average Score : {:.4f}\t Eps: {:.4} ,Length Episode {:4}\n'
                     .format(i_episode, avg_score,exploration_eps,t_step), end="")
-        if avg_score >= config.max_score:
+        if avg_score >= config.max_score and solved_score is None:
+            best_score = avg_score
+            solved_score = avg_score
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - config.score_window_size,
                 avg_score))
             for index_agent,agent in enumerate(agents):
-                agent.save('model','checkpoint_'+str(i_episode - config.score_window_size),str(config.version))
+                agent.save('model','checkpoint_'+'agent_'+str(agent.agent_id)+'_'+str(i_episode - config.score_window_size), str(config.version))
 
+
+        if solved_score is not None and avg_score>best_score:
+            best_score = avg_score
+            print('\nEnvironment solved in {:d} episodes!\t Best Average Score: {:.2f}'.format(
+                i_episode - config.score_window_size,
+                avg_score))
+            for index_agent,agent in enumerate(agents):
+                agent.save('model','best_checkpoint_'+'agent_'+str(agent.agent_id)+'_'+str(i_episode - config.score_window_size), str(config.version))
 
 
     if avg_score < config.max_score:
         print('\nEnvironment not solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
             i_episode - config.score_window_size,
             avg_score))
-        for index_agent, agent in enumerate(agents):
-            agent.save('model','checkpoint_'+'agent_'+str(index_agent)+'_'+str(i_episode - config.score_window_size), str(config.version))
+        for agent in agents:
+            agent.save('model','checkpoint_'+'agent_'+str(agent.agent_id)+'_'+str(i_episode - config.score_window_size), str(config.version))
 
     with open(file_scores, 'w') as fscores:
         fscores.write('\n'.join([str(item) for item in scores_episode]))

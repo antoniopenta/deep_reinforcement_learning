@@ -70,14 +70,14 @@ class Critic(nn.Module):
         """
         super(Critic, self).__init__()
 
-        self.fc1 = nn.Linear(state_size+state_size+action_size+action_size, config.critic_fc1_units)
-        self.fc2 = nn.Linear(config.critic_fc1_units, config.critic_fc2_units)
+        self.fc1 = nn.Linear(state_size, config.critic_fc1_units)
+        self.fc2 = nn.Linear(config.critic_fc1_units+action_size, config.critic_fc2_units)
         self.fc3 = nn.Linear(config.critic_fc2_units, 2)
         #self.fc4 = nn.Linear(config.critic_fc3_units, 2)
 
 
-        self.bn0 = nn.BatchNorm1d(state_size+state_size+action_size+action_size)
-        self.bn1 = nn.BatchNorm1d(config.critic_fc1_units)
+        self.bn0 = nn.BatchNorm1d(state_size)
+        self.bn1 = nn.BatchNorm1d(config.critic_fc1_units+action_size)
         self.bn2 = nn.BatchNorm1d(config.critic_fc2_units)
         #self.bn3 = nn.BatchNorm1d(config.critic_fc3_units)
 
@@ -91,10 +91,11 @@ class Critic(nn.Module):
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
 
-    def forward(self, x):
+    def forward(self, state,action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        x = self.bn0(x)
+        x = self.bn0(state)
         x = self.config.critic_non_linearity(self.fc1(x))
+        x = torch.cat((x, action), dim=1)
         x = self.bn1(x)
         x = self.config.critic_non_linearity(self.fc2(x))
         x = self.bn2(x)

@@ -13,8 +13,8 @@ class Config():
 
         self.log = False # log used to print instructions
 
-        self.report_value = 100
-        self.time_stamp_report = 20  #
+        self.time_stamp_report = 20  #log result within the espiside each time_stamp_report
+
 
         self.num_episodes = 2000  # num_episodes (int): maximum number of training episodes
         self.max_score = 0.5  # max_score (float): that target score that we would like to reach, the benchmark is 15 in 1700 episode
@@ -49,29 +49,30 @@ class Config():
         self.critic_weight_decay = 0.0  # L2 weight decay
 
 
-
+        self.noise_seed =0
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma =  6
+        self.noise_sigma =  0.2
 
 
 
-        self.maddpa_buffer_size = int(1e4)  # replay buffer size
-        self.maddpa_batch_size = 128  # minibatch size
+        self.maddpa_buffer_size = int(1e5)  # replay buffer size
+        self.maddpa_batch_size = 256  # minibatch size
+        self.maddpa_buffer_random_seed = 24 # random seed buffer
 
-
-        self.UPDATE_EVERY = 2 # every n time step do update
-        self.UPDATES_PER_STEP = 4 # how many time run update
+        self.ddpg_update_every = 2 # every n time step do update
+        self.ddpg_updates_per_step = 4 # how many time run update
 
 
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-2   # for soft update of target parameters
 
-
+        self.exploration_epsilon_max = 2.0
+        self.exploration_episilon_min = 0.05
+        self.exploration_episilon_decay = 0.999
 
 
         self.grad_normalization_actor = 1
-
         self.grad_normalization_critic = 0.5
 
 

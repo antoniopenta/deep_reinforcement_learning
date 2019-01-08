@@ -2,12 +2,15 @@ import os
 from collections import deque
 import json
 from unityagents import UnityEnvironment
-import numpy as np
 from utils.config import Config
-from  framework.maddpg import MADDPGLearner
-from framework.agent import DDPGAgent
-from utils.agent_utilities import *
+from framework.coordinator import *
 
+
+def exploration_strategy_1(eps, config):
+    eps *= config.exploration_episilon_decay
+    if eps < config.exploration_episilon_min:
+        return config.exploration_episilon_min
+    return eps
 
 
 if __name__=='__main__':
@@ -16,7 +19,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux = False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux = True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -49,25 +52,23 @@ if __name__=='__main__':
     print('The state for the first agent looks like:', states[0])
 
 
+    # score buffers
 
-    all_scores = []
+    scores_window = deque(maxlen=config.score_window_size)
+    scores = np.zeros(num_agents)
+    scores_episode = []
 
-    scores = deque(maxlen=config.score_window_size)
+    # agent
+
+    agents =  [DDPGAgent(state_size, action_size,config,1),
+                             DDPGAgent(state_size, action_size,config,2)]
+
+    # coordinator
+    maddpg = MADDPGCoordinator(agents,action_size,config)
+
+    exploration_eps = config.exploration_epsilon_max
 
 
-    # each agent will take in  both the actions
-
-    agents =  [DDPGAgent(state_size, action_size,config),
-                             DDPGAgent(state_size, action_size,config)]
-
-    maddpg = MADDPGLearner(agents, config)
-
-
-
-    exploration_EPSILON_MAX = 1.0
-    exploration_EPSILON_MIN = 0.05
-    exploration_EPSILON_DECAY = 0.999
-    exploration_eps= exploration_EPSILON_MAX
 
     for i_episode in range(0, config.num_episodes):
 
@@ -75,62 +76,45 @@ if __name__=='__main__':
 
         states = env_info.vector_observations
 
-        agent_scores_episode = np.zeros(maddpg.num_agents)
-
         maddpg.reset_noise()
 
-        exploration_eps = max(exploration_EPSILON_MIN, exploration_eps * exploration_EPSILON_DECAY)
+        exploration_eps = config.exploration_epsilon_max
 
-        score_episode = []
+        scores = np.zeros(num_agents)
 
         for t_step in range(config.max_steps_4_episodes):
 
-            torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
-
-            actions = maddpg.step(torch_states, noise_scale=exploration_eps)
-
-            if config.log:
-                print(100*'*')
-                print('actions',actions)
-                print('states',torch_states)
-                print(100 * '*')
-
-            actions = [action.data.numpy() for action in actions]
-
+            # get the actions from the angent
+            actions = maddpg.agents_act(states, exploration=exploration_eps)
+            #run the actions
             env_info = env.step(actions)[brain_name]  # send the action to the environment
+            #get the result
             next_states = env_info.vector_observations  # get the next state
             rewards = env_info.rewards  # get the reward
-            #print('rewards',rewards,'t_stamp',t_step)
             dones = env_info.local_done
-            if config.log:
-                print('maddpg states',states.shape)
-                print('maddpg next states',next_states.shape)
-                print('maddpg rewards', len(rewards),rewards)
-
-                print('maddpg dones', len(dones), dones)
-
+            #save the result in the buffer
             maddpg.remember(states, actions, rewards, next_states, dones)
-            maddpg.learn()
+            #make a step
+            maddpg.step(t_step)
+            # update sarsa
             states = next_states
-            agent_scores_episode += rewards
-
-            score_episode.append(max(agent_scores_episode))
-
-
+            scores += rewards
+            #reduce explortion
+            exploration_eps = exploration_strategy_1(exploration_eps,config)
 
             if np.any(dones):
                 #print(t_step)
                 break
-        value_score_episode = max(agent_scores_episode)
-        all_scores.append(value_score_episode)
-        scores.append(value_score_episode)
-        avg_score = np.mean(scores)
-        score_episode_mean=np.mean(score_episode)
+
+        score = np.max(scores)
+        scores_window.append(score)  # save most recent score
+        scores_episode.append(score)
+        avg_score = np.mean(scores_window)
 
         if i_episode % config.time_stamp_report:
             print(
-                'Episode {}\t Average Score Last Espisode  : {:.4f}\t Average Score : {:.4f}\t Eps: {:.4} ,Length Episode {:4}\n'
-                    .format(i_episode, score_episode_mean, avg_score,exploration_eps,t_step), end="")
+                'Episode {}\t Average Score : {:.4f}\t Eps: {:.4} ,Length Episode {:4}\n'
+                    .format(i_episode, avg_score,exploration_eps,t_step), end="")
         if avg_score >= config.max_score:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
                 i_episode - config.score_window_size,
@@ -145,10 +129,10 @@ if __name__=='__main__':
             i_episode - config.score_window_size,
             avg_score))
         for index_agent, agent in enumerate(agents):
-            agent.save('model','checkpoint_'+str(i_episode - config.score_window_size), str(config.version))
+            agent.save('model','checkpoint_'+'agent_'+str(index_agent)+'_'+str(i_episode - config.score_window_size), str(config.version))
 
     with open(file_scores, 'w') as fscores:
-        fscores.write('\n'.join([str(item) for item in all_scores]))
+        fscores.write('\n'.join([str(item) for item in scores_episode]))
 
     with open(file_version, 'w') as fversion:
         json.dump(config.getDict(), fversion)

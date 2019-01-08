@@ -1,24 +1,30 @@
 
 import numpy as np
 import numpy.random as nr
-
+import copy
+import random
 class OUNoise:
-    def __init__(self, action_dimension, mu=0, theta=0.15, sigma=0.2):
-        self.action_dimension = action_dimension
-        self.mu = mu
+    """Ornstein-Uhlenbeck process."""
+
+    def __init__(self, size, seed, scale=0.1,  mu=0., theta=0.15, sigma=0.2):
+        """Initialize parameters and noise process."""
+        self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
-        self.state = np.ones(self.action_dimension) * self.mu
+        self.seed = random.seed(seed)
+        self.scale = scale
         self.reset()
 
     def reset(self):
-        self.state = np.ones(self.action_dimension) * self.mu
+        """Reset the internal state (= noise) to mean (mu)."""
+        self.state = copy.copy(self.mu)
 
     def sample(self):
+        """Update internal state and return it as a noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * nr.randn(len(x))
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(len(x))
         self.state = x + dx
-        return self.state
+        return self.state * self.scale
 
 
 
@@ -41,7 +47,7 @@ if __name__ == '__main__':
     eps = 1
     eps_decay = 0.999
     noise_episode = []
-    eps_min=0.05
+    eps_min = 0.05
     for i_episode in range(2000):
         ou = OUNoise(1, mu=0, theta=0.15, sigma=6)
         states = []

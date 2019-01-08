@@ -78,8 +78,6 @@ if __name__=='__main__':
 
         maddpg.reset_noise()
 
-        exploration_eps = config.exploration_epsilon_max
-
         scores = np.zeros(num_agents)
 
         for t_step in range(config.max_steps_4_episodes):

@@ -9,7 +9,7 @@ class Config():
 
     def __init__(self):
 
-        self.version = 1  # version (int): version number to save model check point and files
+        self.version = 2  # version (int): version number to save model check point and files
 
         self.log = False # log used to print instructions
 
@@ -56,8 +56,8 @@ class Config():
 
 
 
-        self.maddpa_buffer_size = int(1e5)  # replay buffer size
-        self.maddpa_batch_size = 512  # minibatch size
+        self.maddpa_buffer_size = int(1e4)  # replay buffer size
+        self.maddpa_batch_size = 128  # minibatch size
 
 
         self.UPDATE_EVERY = 2 # every n time step do update

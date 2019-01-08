@@ -16,7 +16,7 @@ if __name__=='__main__':
 
     config = Config()
 
-    Linux = False  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
+    Linux = True  #Linux (boolean): boolan value used to run on AWS (aws if Linux = True)
 
     file_scores = os.path.join('data','scores_'+str(config.version)+'.txt')
 
@@ -64,13 +64,9 @@ if __name__=='__main__':
 
 
 
-    exploration_EPSILON_MAX = 2.0
+    exploration_EPSILON_MAX = 1.0
     exploration_EPSILON_MIN = 0.05
     exploration_EPSILON_DECAY = 0.999
-
-    num_exploration_episodes = 25000
-    exploration_range = (0.3, 0.0)
-
     exploration_eps= exploration_EPSILON_MAX
 
     for i_episode in range(0, config.num_episodes):
@@ -83,17 +79,13 @@ if __name__=='__main__':
 
         maddpg.reset_noise()
 
-        #exploration_eps = max(exploration_EPSILON_MIN, exploration_eps * exploration_EPSILON_DECAY)
-
+        exploration_eps = max(exploration_EPSILON_MIN, exploration_eps * exploration_EPSILON_DECAY)
 
         score_episode = []
 
         for t_step in range(config.max_steps_4_episodes):
 
             torch_states = [to_tensor(states[i]) for i in range(maddpg.num_agents)]
-
-            exploration_eps=exploration_eps*exploration_EPSILON_DECAY
-
 
             actions = maddpg.step(torch_states, noise_scale=exploration_eps)
 

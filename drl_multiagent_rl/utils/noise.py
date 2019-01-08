@@ -43,7 +43,7 @@ if __name__ == '__main__':
     noise_episode = []
     eps_min=0.05
     for i_episode in range(2000):
-        ou = OUNoise(1, mu=0, theta=0.15, sigma=3)
+        ou = OUNoise(1, mu=0, theta=0.15, sigma=6)
         states = []
         for i in range(1000):
             if np.random.random()>0.5:

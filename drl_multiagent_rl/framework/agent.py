@@ -12,31 +12,55 @@ from utils.noise import OUNoise
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DDPGAgent:
+
+
+    critic_local = None
+    critic_target = None
+    critic_optimizer = None
+
     def __init__(self, state_size, action_size, config):
         super(DDPGAgent, self).__init__()
 
         self.actor = Actor(state_size, action_size, config).to(device)
-        self.critic = Critic(state_size, action_size, config).to(device)
         self.target_actor = Actor(state_size, action_size, config).to(device)
-        self.target_critic = Critic(state_size, action_size, config).to(device)
 
+        self.actor_optimizer = Adam(self.actor.parameters(), lr=config.actor_lr, weight_decay=config.actor_weight_decay)
 
         self.config = config
 
         self.noise = OUNoise(2, mu=self.config.noise_mu, theta=self.config.noise_theta,
                              sigma=self.config.noise_sigma)
 
+
+        # Initilise Class levell Critic Network
+        if DDPGAgent.critic_local is None:
+            DDPGAgent.critic_local = Critic(state_size, action_size,config).to(device)
+        if DDPGAgent.critic_target is None:
+            DDPGAgent.critic_target = Critic(state_size, action_size,config).to(device)
+        if DDPGAgent.critic_optimizer is None:
+            DDPGAgent.critic_optimizer = Adam(DDPGAgent.critic_local.parameters(), lr=config.critic_lr, weight_decay=config.critic_weight_decay)
+
+        self.critic = DDPGAgent.critic_local
+        self.target_critic = DDPGAgent.critic_target
+        self.critic_optimizer =DDPGAgent.critic_optimizer
+
         # initialize targets same as original networks
         hard_update(self.target_actor, self.actor)
         hard_update(self.target_critic, self.critic)
 
-        self.actor_optimizer = Adam(self.actor.parameters(), lr=config.actor_lr, weight_decay=config.actor_weight_decay)
-        self.critic_optimizer = Adam(self.critic.parameters(), lr=config.critic_lr, weight_decay=config.critic_weight_decay)
+
 
 
     def step(self, obs,noise_scale):
         obs = obs.to(device)
-        action = self.actor(obs) + to_tensor(noise_scale * self.noise.sample())
+
+        if np.random.random() > 0.5:
+            delta = to_tensor(noise_scale * self.noise.sample())
+        else:
+            delta = -to_tensor(noise_scale * self.noise.sample())
+
+        action = self.actor(obs) + delta
+
         action = torch.clamp(action, -1, 1)
         return action
 

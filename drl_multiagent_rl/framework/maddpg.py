@@ -22,6 +22,8 @@ class MADDPGLearner:
 
         self.maddpg_agents = agent_list
 
+
+
         self.num_agents = len(self.maddpg_agents)
 
         self.buffer = ReplayBuffer(config.maddpa_buffer_size,config.maddpa_batch_size,self.num_agents)

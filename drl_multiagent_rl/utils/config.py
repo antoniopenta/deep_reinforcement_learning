@@ -52,16 +52,16 @@ class Config():
 
         self.noise_mu = 0.
         self.noise_theta = 0.15
-        self.noise_sigma =  0.2
+        self.noise_sigma =  6
 
 
 
-        self.maddpa_buffer_size = int(1e6)  # replay buffer size
-        self.maddpa_batch_size = 256  # minibatch size
+        self.maddpa_buffer_size = int(1e5)  # replay buffer size
+        self.maddpa_batch_size = 512  # minibatch size
 
 
-        self.UPDATE_EVERY = 3 # every n time step do update
-        self.UPDATES_PER_STEP = 9 # how many time run update
+        self.UPDATE_EVERY = 2 # every n time step do update
+        self.UPDATES_PER_STEP = 4 # how many time run update
 
 
         self.maddpa_gamma = 0.99  # discount factor

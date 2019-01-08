@@ -13,6 +13,8 @@ def exploration_strategy_1(eps, config):
     return eps
 
 
+
+
 if __name__=='__main__':
 
 
@@ -118,7 +120,7 @@ if __name__=='__main__':
                 i_episode - config.score_window_size,
                 avg_score))
             for index_agent,agent in enumerate(agents):
-                agent.save('model','checkpoint_'+str(i_episode - config.score_window_size),config.version)
+                agent.save('model','checkpoint_'+str(i_episode - config.score_window_size),str(config.version))
 
 
 

@@ -22,13 +22,13 @@ class Config():
         self.max_steps_4_episodes = 1000  # max_t (int) max length of the time stemps
 
 
-
-        self.actor_fc1_units = 256  # number neurons first layer actor
-        self.actor_fc2_units = 128 # number neurons second layer actor
+        self.network_random_seed =0
+        self.actor_fc1_units = 128  # number neurons first layer actor
+        self.actor_fc2_units = 64 # number neurons second layer actor
         self.actor_fc3_units = 32  # number neurons first layer actor
 
-        self.critic_fc1_units = 256  # number neurons first layer critic
-        self.critic_fc2_units = 128 # number neurons second layer critic
+        self.critic_fc1_units = 128  # number neurons first layer critic
+        self.critic_fc2_units = 64 # number neurons second layer critic
         self.critic_fc3_units= 64 # number neurons third layer critic
 
         self.critic_dropout_p = 0.5
@@ -68,7 +68,7 @@ class Config():
         self.maddpa_tau = 1e-2   # for soft update of target parameters
 
         self.exploration_epsilon_max = 2.0
-        self.exploration_episilon_min = 0.05
+        self.exploration_episilon_min = 0.005
         self.exploration_episilon_decay = 0.999
 
 

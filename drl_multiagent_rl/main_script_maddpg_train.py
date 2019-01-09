@@ -111,11 +111,12 @@ if __name__=='__main__':
             # update sarsa
             states = next_states
             scores += rewards
-            #reduce explortion
-            exploration_eps = exploration_strategy_1(exploration_eps,config)
+            # reduce explortion
+            exploration_eps = exploration_strategy_1(exploration_eps, config)
 
             if np.any(dones):
                 break
+
 
         score = np.max(scores)
         scores_window.append(score)  # save most recent score
@@ -147,11 +148,12 @@ if __name__=='__main__':
 
 
     if avg_score < config.max_score:
-        print('\nEnvironment not solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
-            i_episode - config.score_window_size,
-            avg_score))
-        for agent in agents:
-            agent.save('model','checkpoint_'+'agent_'+str(agent.agent_id)+'_'+str(i_episode - config.score_window_size), str(config.version))
+        if solved_score is None:
+            print('\nEnvironment not solved in {:d} episodes!\tAverage Score: {:.2f}'.format(
+                i_episode - config.score_window_size,
+                avg_score))
+            for agent in agents:
+                agent.save('model','checkpoint_'+'agent_'+str(agent.agent_id)+'_'+str(i_episode - config.score_window_size), str(config.version))
 
     with open(file_scores, 'w') as fscores:
         fscores.write('\n'.join([str(item) for item in scores_episode]))

@@ -53,8 +53,7 @@ class MADDPGCoordinator():
 
 
     def step(self,t_step):
-
-        if t_step % self.config.ddpg_update_every==0:
+        if t_step % self.config.ddpg_update_every:
             if len(self.buffer) < self.config.maddpa_batch_size:
                 return
 
@@ -62,7 +61,6 @@ class MADDPGCoordinator():
                 for agent in self.maddpg_agents:
                     experience = self.buffer.sample()
                     agent.learn(experience,self.config.maddpa_gamma)
-
 
 
 

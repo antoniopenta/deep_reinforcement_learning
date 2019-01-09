@@ -59,15 +59,14 @@ class Config():
         self.maddpa_batch_size = 256  # minibatch size
         self.maddpa_buffer_random_seed = 24 # random seed buffer
 
-        self.ddpg_update_every = 2 # every n time step do update
         self.ddpg_updates_per_step = 4 # how many time run update
-
+        self.ddpg_update_every = 2  # every n time step do update
 
         self.maddpa_gamma = 0.99  # discount factor
         self.maddpa_tau = 1e-2   # for soft update of target parameters
 
         self.exploration_epsilon_max = 2.0
-        self.exploration_episilon_min = 0.005
+        self.exploration_episilon_min = 0.05
         self.exploration_episilon_decay = 0.999
 
 

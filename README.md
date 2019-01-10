@@ -15,7 +15,7 @@ The repository contains solutions for the projects in the Udacity course https:/
 
 ![](https://user-images.githubusercontent.com/10624937/43851024-320ba930-9aff-11e8-8493-ee547c6af349.gif)
 
-- **Policy Gradient Reinforcement Learning**: Neural Network used to learn an approximation of the Policy function for continous actions (Deep Deterministic Policy Gradient (DDPG).
+- **Policy Gradient Reinforcement Learning**: Neural Network used to learn an approximation of the Policy function for continous actions (Deep Deterministic Policy Gradient-DDPG).
 - **Details**: https://github.com/antoniopenta/deep_reinforcement_learning/tree/master/drl_continous_control
 
 - **Demo**: https://www.youtube.com/watch?v=ryAWEyv8bm4
@@ -25,7 +25,7 @@ The repository contains solutions for the projects in the Udacity course https:/
 ![](https://user-images.githubusercontent.com/10624937/42135623-e770e354-7d12-11e8-998d-29fc74429ca2.gif)
 
 
-- **Actor Critic based solution** for collaborations between to agents.
+- **Actor Critic based solution** for collaboration between two agents.
 
 - **Details**: https://github.com/antoniopenta/deep_reinforcement_learning/tree/master/drl_multiagent_rl
 

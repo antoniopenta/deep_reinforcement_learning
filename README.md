@@ -30,3 +30,17 @@ The repository contains solutions for the projects in the Udacity course https:/
 - **Details**: https://github.com/antoniopenta/deep_reinforcement_learning/tree/master/drl_multiagent_rl
 
 - **Demo**: https://www.youtube.com/watch?v=jtyQqDcZgRs
+
+
+
+## Donations
+
+![AVSI](https://i.imgur.com/oRnsKLL.jpg)
+
+
+- **If you found this code useful, please condider to make a donation to [AVSI](https://www.avsi.org/en/)**
+    - https://www.avsi.org/en/country/
+    - http://www.avsi-usa.org/donate.html
+    - https://www.avsi.org/it/donation/
+
+Many thanks!
